@@ -3,7 +3,6 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-    paths: [ 'index.html', 'android/**', '.github/workflows/build-apk.yml' ]
   workflow_dispatch:
 
 permissions:
@@ -13,26 +12,41 @@ jobs:
   apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+
+      # ubuntu-latest already ships the Android SDK; just make sure the licences are accepted
+      - name: Prepare Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-35" "build-tools;35.0.0" > /dev/null
+
       - name: Build APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
-          mkdir -p ../out && cp app/build/outputs/apk/release/*.apk ../out/TIS-Diagram-Pro.apk
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          mkdir -p ../out
+          cp app/build/outputs/apk/release/*.apk ../out/TIS-Diagram-Pro.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: TIS-Diagram-Pro-apk
           path: out/TIS-Diagram-Pro.apk
+
       - name: Publish release (free download, no login needed)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: TIS Diagram Pro v1.0.${{ github.run_number }}
-          body: Android APK — ডাউনলোড করে ফোনে ইনস্টল করুন। ছবি তুলুন → নিজে থেকে Illustrator ভেক্টর (.ai) তৈরি হবে।
+          make_latest: true
+          body: |
+            📱 Android APK — ডাউনলোড করে ফোনে ইনস্টল করুন।
+            ছবি তুলুন → নিজে থেকে Illustrator ভেক্টর (.ai) তৈরি হবে। ফ্রি, লগইন লাগে না।
           files: out/TIS-Diagram-Pro.apk
