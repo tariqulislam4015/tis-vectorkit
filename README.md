@@ -8,6 +8,13 @@ Turn hand-drawn or scanned school diagrams into clean, editable Adobe Illustrato
 গণিত, জ্যামিতি, গ্রাফ, পদার্থবিজ্ঞান, রসায়ন, সার্কিট, ICT, বার চার্ট, পাই চার্ট — ছবি দিলেই কোনো প্রম্পট ছাড়া
 নিজে থেকে আকৃতি চিনে সোজা ও সুন্দর করে আঁকে। **সম্পূর্ণ ফ্রি · কোনো লগইন লাগে না · সব কাজ আপনার ডিভাইসেই হয়।**
 
+<p align="center">
+  <a href="https://tariqulislam4015.github.io/tis-vectorkit/"><img src="https://img.shields.io/badge/%F0%9F%9A%80%20LIVE-%E0%A6%8F%E0%A6%96%E0%A6%A8%E0%A6%87%20%E0%A6%AC%E0%A7%8D%E0%A6%AF%E0%A6%AC%E0%A6%B9%E0%A6%BE%E0%A6%B0%20%E0%A6%95%E0%A6%B0%E0%A7%81%E0%A6%A8-2f9e44?style=for-the-badge" height="44" alt="LIVE — এখনই ব্যবহার করুন"></a>
+  &nbsp;
+  <a href="https://github.com/tariqulislam4015/tis-vectorkit/releases/latest/download/TIS-Diagram-Pro.apk"><img src="https://img.shields.io/badge/%F0%9F%93%B1%20Android%20APK-%E0%A6%A1%E0%A6%BE%E0%A6%89%E0%A6%A8%E0%A6%B2%E0%A7%8B%E0%A6%A1-0f3b2c?style=for-the-badge&logo=android&logoColor=white" height="44" alt="Android APK ডাউনলোড"></a>
+</p>
+<p align="center"><a href="https://tariqulislam4015.github.io/tis-vectorkit/"><b>🌐 https://tariqulislam4015.github.io/tis-vectorkit/</b></a></p>
+
 ![আগে → পরে](docs/before-after.jpg)
 
 ---
@@ -33,11 +40,12 @@ Turn hand-drawn or scanned school diagrams into clean, editable Adobe Illustrato
 ## 🚀 কীভাবে ব্যবহার করবেন
 
 ### ১. ব্রাউজারে (ল্যাপটপ / মোবাইল)
-`index.html` ফাইলটি ডাউনলোড করে যেকোনো ব্রাউজারে খুলুন — ইনস্টল লাগে না, ইন্টারনেট ছাড়াও চলে।
-GitHub Pages চালু থাকলে সরাসরি লিংক থেকেও চালানো যাবে।
+**[🚀 LIVE লিংকে ক্লিক করুন](https://tariqulislam4015.github.io/tis-vectorkit/)** — ল্যাপটপ বা মোবাইলের ব্রাউজারে সরাসরি চলবে।
+অথবা `index.html` ফাইলটি ডাউনলোড করে খুলুন — ইনস্টল লাগে না, ইন্টারনেট ছাড়াও চলে।
 
 ### ২. Android অ্যাপ (APK)
-রিপোজিটরির **[Releases](../../releases)** পাতা থেকে `TIS-Diagram-Pro.apk` ডাউনলোড করে ফোনে ইনস্টল করুন।
+**[📱 সরাসরি APK ডাউনলোড](https://github.com/tariqulislam4015/tis-vectorkit/releases/latest/download/TIS-Diagram-Pro.apk)** করে ফোনে ইনস্টল করুন (অথবা **[Releases](../../releases)** পাতা দেখুন)।
+ইনস্টলের সময় "Unknown sources / এই উৎস থেকে অনুমতি দিন" চাইলে অনুমতি দিন।
 প্রতিবার কোড আপডেট হলে GitHub Actions নিজে থেকে নতুন APK বানিয়ে দেয়।
 নিজে বানাতে চাইলে: [android/README_BANGLA.md](android/README_BANGLA.md)
 
