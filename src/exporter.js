@@ -122,7 +122,7 @@
       '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${res.width} ${res.height}] /TrimBox [0 0 ${res.width} ${res.height}] /ArtBox [0 0 ${res.width} ${res.height}] /Contents 4 0 R /Resources << /Font << /F1 6 0 R /F2 7 0 R /F3 8 0 R >> >> >>`,
       `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
-      `<< /Title (${title}) /Creator (VectorKit Diagram Vectorizer) /Producer (VectorKit) /CreationDate (${date}) >>`,
+      `<< /Title (${title}) /Creator (TIS Diagram Pro) /Producer (TIS Diagram Pro) /CreationDate (${date}) >>`,
       '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
       '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>',
       '<< /Type /Font /Subtype /Type1 /BaseFont /Symbol >>',

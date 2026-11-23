@@ -14,6 +14,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebViewClient;
 import androidx.core.content.FileProvider;
 import java.io.File;
@@ -37,7 +38,16 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);
         s.setAllowFileAccess(true);
         s.setAllowContentAccess(true);
-        web.setWebViewClient(new WebViewClient());
+        web.setWebViewClient(new WebViewClient() {
+            // YouTube / Facebook / WhatsApp / GitHub links open in their own app or the browser
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
+                Uri u = r.getUrl();
+                if ("file".equals(u.getScheme())) return false;
+                try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception e) { /* no app can open it */ }
+                return true;
+            }
+        });
         web.addJavascriptInterface(new Bridge(), "AndroidBridge");
         web.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -98,12 +108,12 @@ public class MainActivity extends Activity {
                     ContentValues cv = new ContentValues();
                     cv.put(MediaStore.Downloads.DISPLAY_NAME, name);
                     cv.put(MediaStore.Downloads.MIME_TYPE, name.endsWith(".ai") ? "application/postscript" : mime);
-                    cv.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/VectorKit");
+                    cv.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/TIS Diagram Pro");
                     Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
                     if (uri == null) return false;
                     os = getContentResolver().openOutputStream(uri);
                 } else {
-                    File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "VectorKit");
+                    File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "TIS Diagram Pro");
                     dir.mkdirs();
                     os = new FileOutputStream(new File(dir, name));
                 }

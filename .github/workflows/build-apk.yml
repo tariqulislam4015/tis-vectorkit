@@ -24,15 +24,15 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon
-          mkdir -p ../out && cp app/build/outputs/apk/release/*.apk ../out/TIS-VectorKit.apk
+          mkdir -p ../out && cp app/build/outputs/apk/release/*.apk ../out/TIS-Diagram-Pro.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: TIS-VectorKit-apk
-          path: out/TIS-VectorKit.apk
+          name: TIS-Diagram-Pro-apk
+          path: out/TIS-Diagram-Pro.apk
       - name: Publish release (free download, no login needed)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: TIS VectorKit v1.0.${{ github.run_number }}
+          name: TIS Diagram Pro v1.0.${{ github.run_number }}
           body: Android APK — ডাউনলোড করে ফোনে ইনস্টল করুন। ছবি তুলুন → নিজে থেকে Illustrator ভেক্টর (.ai) তৈরি হবে।
-          files: out/TIS-VectorKit.apk
+          files: out/TIS-Diagram-Pro.apk

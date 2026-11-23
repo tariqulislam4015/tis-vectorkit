@@ -1,4 +1,6 @@
-# TIS VectorKit ✏️ → 📐
+<p align="center"><img src="docs/logo.png" width="120" alt="TIS Academy"></p>
+
+# TIS Diagram Pro ✏️ → 📐
 
 **হাতে আঁকা বা স্ক্যান করা ডায়াগ্রামকে পরিষ্কার, স্ট্যান্ডার্ড Adobe Illustrator ভেক্টরে (.ai) রূপান্তর।**
 Turn hand-drawn or scanned school diagrams into clean, editable Adobe Illustrator vectors.
@@ -35,7 +37,7 @@ Turn hand-drawn or scanned school diagrams into clean, editable Adobe Illustrato
 GitHub Pages চালু থাকলে সরাসরি লিংক থেকেও চালানো যাবে।
 
 ### ২. Android অ্যাপ (APK)
-রিপোজিটরির **[Releases](../../releases)** পাতা থেকে `TIS-VectorKit.apk` ডাউনলোড করে ফোনে ইনস্টল করুন।
+রিপোজিটরির **[Releases](../../releases)** পাতা থেকে `TIS-Diagram-Pro.apk` ডাউনলোড করে ফোনে ইনস্টল করুন।
 প্রতিবার কোড আপডেট হলে GitHub Actions নিজে থেকে নতুন APK বানিয়ে দেয়।
 নিজে বানাতে চাইলে: [android/README_BANGLA.md](android/README_BANGLA.md)
 
@@ -70,6 +72,19 @@ GitHub Pages চালু থাকলে সরাসরি লিংক থে
 - অফলাইন লেখা-পড়া ছোট লেবেলের জন্য; জোড়া লাগানো (টানা) হাতের লেখা ও ছোট-বড় হাতের কিছু অক্ষরে ভুল হতে পারে।
 - বাংলা লেখা টেক্সটে বদলায় না, পরিষ্কার আঁকা আকৃতি হিসেবে থাকে।
 - .ai ফাইলটি PDF-compatible ফরম্যাটে — Illustrator সরাসরি খুলে এডিট করতে পারে।
+
+## 👨‍🏫 ডেভেলপার
+
+<p align="center"><img src="docs/developer.jpg" width="150" style="border-radius:50%" alt="তারিকুল ইসলাম (সুমন)"></p>
+<h3 align="center">তারিকুল ইসলাম (সুমন)</h3>
+<p align="center"><b>────── MSc Mathematics ──────</b></p>
+
+<p align="center">
+  <a href="https://www.youtube.com/@tis.academy24"><img src="https://img.shields.io/badge/YouTube-TIS%20Academy-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube"></a>
+  <a href="https://www.facebook.com/tariqul.islam.422531/"><img src="https://img.shields.io/badge/Facebook-Tariqul%20Islam-1877F2?style=for-the-badge&logo=facebook&logoColor=white" alt="Facebook"></a>
+  <a href="https://wa.me/8801755489719"><img src="https://img.shields.io/badge/WhatsApp-%2B880%201755--489719-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp"></a>
+  <a href="https://github.com/tariqulislam4015"><img src="https://img.shields.io/badge/GitHub-tariqulislam4015-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+</p>
 
 ## 📄 লাইসেন্স
 [MIT](LICENSE) © Tariqul Islam
