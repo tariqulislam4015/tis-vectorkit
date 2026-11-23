@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#14213d">
+<title>VectorKit — ছবি থেকে Illustrator ভেক্টর</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--acc:#fca311;--acc2:#2a9d8f;--bg:#f4f5f7;--card:#fff;--line:#e3e6ea;--mut:#6b7280;--sel:#e63946}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--ink);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header .logo{width:34px;height:34px;border-radius:9px;background:var(--acc);display:grid;place-items:center}
+header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
+header p{margin:0;font-size:13px;opacity:.75}
+header .sp{flex:1}
+.badge{font-size:12px;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:99px}
+main{max-width:1280px;margin:0 auto;padding:16px;display:grid;grid-template-columns:300px 1fr;gap:16px}
+@media (max-width:860px){main{display:flex;flex-direction:column;padding:10px}aside{display:contents}#cardIn{order:1}.stage{order:2}#cardDl{order:3}#cardAdv{order:4}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h3{margin:0 0 10px;font-size:15px}
+.btn{appearance:none;border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-size:15px}
+.btn.pri{background:var(--acc);color:var(--ink)}
+.btn.sec{background:var(--ink);color:#fff}
+.btn.ghost{background:#eef0f3;color:var(--ink)}
+.btn.small{padding:7px 10px;font-size:13px;width:auto}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.stack{display:grid;gap:8px}
+.drop{border:2px dashed #c9ced6;border-radius:12px;padding:16px;text-align:center;color:var(--mut);font-size:13px}
+.drop.on{border-color:var(--acc);background:#fff8ea}
+label.row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:10px 0 4px;gap:8px}
+input[type=range]{width:100%}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;margin:6px 0}
+details summary{cursor:pointer;font-weight:600;font-size:14px}
+.stage{position:relative;min-height:420px;display:flex;flex-direction:column}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.tab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.view{position:relative;flex:1;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:
+  repeating-conic-gradient(#f6f7f9 0% 25%, #fff 0% 50%) 50%/20px 20px;display:flex;align-items:center;justify-content:center;min-height:380px}
+.view img,.view svg{display:block;width:100%;height:100%;object-fit:contain}
+.view{height:68vh}@media (max-width:860px){.view{height:56vh}}
+.box{position:relative;width:100%;height:100%}
+.layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px}
+.empty{color:var(--mut);text-align:center;padding:30px;font-size:14px;line-height:1.7}
+.empty b{color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:#eef6f5;color:#1d6f65;border-radius:99px;padding:3px 10px;font-size:12.5px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;padding:8px;border:1px solid var(--line);border-radius:10px;background:#fafbfc}
+.bar .lbl{font-size:13px;color:var(--mut)}
+.dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dl .btn{font-size:14px}
+.note{font-size:12px;color:var(--mut);line-height:1.6;margin-top:8px}
+#busy{position:absolute;inset:0;background:rgba(255,255,255,.75);display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;font-weight:600;z-index:5}
+.spin{width:38px;height:38px;border:4px solid #ddd;border-top-color:var(--acc);border-radius:50%;animation:r 0.8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;display:none;z-index:9;max-width:90vw}
+svg .hit{cursor:pointer}
+.fix{background:#fff4e0;color:#8a5300}
+.ai{margin-top:12px;border:1px solid #d9e2ec;border-radius:12px;background:linear-gradient(180deg,#f7fafc,#fff);padding:10px 12px}
+.aihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aiico{font-size:18px}.aist{font-size:12.5px;color:var(--mut)}
+.aibody{font-size:13.5px;color:#334;margin-top:6px;line-height:1.6}
+svg .selected{filter:drop-shadow(0 0 3px var(--sel))}
+.samples{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 20 L12 4 L21 20 Z" fill="none" stroke="#14213d" stroke-width="2.4" stroke-linejoin="round"/><circle cx="12" cy="14" r="3" fill="#14213d"/></svg></div>
+  <div><h1>VectorKit</h1><p>হাতে আঁকা / স্ক্যান করা ছবি → পরিষ্কার Illustrator ভেক্টর</p></div>
+  <div class="sp"></div>
+  <span class="badge">ফ্রি · লগইন লাগে না · সব কাজ আপনার ডিভাইসেই</span>
+</header>
+
+<main>
+  <aside class="stack">
+    <div class="card stack" id="cardIn">
+      <h3>১. ছবি দিন</h3>
+      <button class="btn pri" id="camBtn">📷 ক্যামেরা দিয়ে ছবি তুলুন</button>
+      <button class="btn sec" id="fileBtn">🖼️ গ্যালারি / ফাইল থেকে নিন</button>
+      <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+      <input type="file" id="fileIn" accept="image/*" hidden>
+      <div class="drop" id="drop">এখানে ছবি টেনে আনুন বা <b>Ctrl+V</b> চাপুন</div>
+      <div class="samples"><span class="note" style="margin:0">উদাহরণ দেখুন:</span>
+        <button class="btn ghost small" data-sample="geo">জ্যামিতি</button>
+        <button class="btn ghost small" data-sample="graph">গ্রাফ</button>
+        <button class="btn ghost small" data-sample="circuit">সার্কিট</button>
+      </div>
+    </div>
+
+    <div class="card" id="cardAdv">
+      <details id="adv">
+        <summary>⚙️ উন্নত সেটিংস (ঐচ্ছিক)</summary>
+        <label class="row">কালির সংবেদনশীলতা <span id="vSens">0</span></label>
+        <input type="range" id="sens" min="-40" max="40" value="0">
+        <label class="row">মসৃণতা / সহনশীলতা <span id="vTol">1.0</span></label>
+        <input type="range" id="tol" min="0.5" max="2" step="0.1" value="1">
+        <label class="row">স্ন্যাপ শক্তি (কোণ ও জোড়া) <span id="vSnap">1.0</span></label>
+        <input type="range" id="snap" min="0" max="2" step="0.1" value="1">
+        <label class="row">ছোট দাগ বাদ দিন <span id="vNoise">0</span></label>
+        <input type="range" id="noise" min="0" max="200" step="5" value="0">
+        <div class="chk"><input type="checkbox" id="uniform" checked><label for="uniform">সব রেখার পুরুত্ব সমান করুন</label></div>
+        <div class="chk"><input type="checkbox" id="black" checked><label for="black">কালো কালি = খাঁটি কালো</label></div>
+        <div class="chk"><input type="checkbox" id="mono"><label for="mono">শুধু এক রঙে (সাদা-কালো)</label></div>
+        <div class="chk"><input type="checkbox" id="persp" checked><label for="persp">ছবির কাগজ খুঁজে কোণ/পার্সপেক্টিভ ঠিক করুন</label></div>
+        <div class="chk"><input type="checkbox" id="deskew" checked><label for="deskew">বাঁকা ছবি নিজে থেকে সোজা করুন</label></div>
+        <div class="chk"><input type="checkbox" id="ocrAuto" checked><label for="ocrAuto">হাতের লেখা পড়ে টেক্সট বানান (ফ্রি, অফলাইন)</label></div>
+        <div class="chk"><input type="checkbox" id="aiAuto"><label for="aiAuto">Claude AI সহায়তা স্বয়ংক্রিয়ভাবে চালান (ঐচ্ছিক)</label></div>
+        <button class="btn ghost small" id="rerun" style="margin-top:8px">🔄 আবার প্রসেস করুন</button>
+      </details>
+    </div>
+
+    <div class="card stack" id="cardDl">
+      <h3>৩. ডাউনলোড</h3>
+      <div class="dl">
+        <button class="btn pri" id="dlAI" disabled>⬇ .AI (Illustrator)</button>
+        <button class="btn sec" id="dlSVG" disabled>⬇ .SVG</button>
+        <button class="btn ghost" id="dlPDF" disabled>⬇ .PDF</button>
+        <button class="btn ghost" id="dlPNG" disabled>⬇ .PNG</button>
+      </div>
+      <div class="note" id="dlNote">প্রতিটি রেখা, বৃত্ত, ত্রিভুজ আলাদা আলাদা অবজেক্ট হিসেবে থাকবে — Illustrator-এ খুলে সরাসরি এডিট করা যাবে।</div>
+      <button class="btn ghost small" id="dlApp" style="display:none;width:100%">💾 পুরো অ্যাপটি অফলাইনের জন্য সেভ করুন (.html)</button>
+    </div>
+  </aside>
+
+  <section class="card stage">
+    <div class="tabs">
+      <strong style="font-size:15px;margin-right:6px">২. ফলাফল</strong>
+      <button class="tab on" data-view="vec">ভেক্টর</button>
+      <button class="tab" data-view="orig">মূল ছবি</button>
+      <button class="tab" data-view="over">মিলিয়ে দেখুন</button>
+      <button class="tab" data-view="side">পাশাপাশি</button>
+      <span style="flex:1"></span>
+      <button class="btn ghost small" id="rotBtn" title="৯০° ঘোরান">⟳ ঘোরান</button>
+    </div>
+    <div class="view" id="view">
+      <div class="empty" id="empty">
+        <div style="font-size:42px">✏️ → 📐</div>
+        <b>ছবি দিলেই নিজে থেকে আঁকা শুরু হবে — কোনো প্রম্পট লিখতে হবে না।</b><br>
+        রেখা, বৃত্ত, উপবৃত্ত, ত্রিভুজ, আয়তক্ষেত্র, তীর চিহ্ন, গ্রাফের বক্ররেখা,<br>বার চার্ট, পাই চার্ট, সার্কিট — সব চিনে নিয়ে মাপমতো সোজা ও সুন্দর করে দেবে।
+      </div>
+      <div id="busy"><div class="spin"></div><div id="busyTxt">প্রসেস হচ্ছে…</div></div>
+    </div>
+    <div class="bar" id="editBar" style="display:none">
+      <span class="lbl" id="selInfo">কোনো অংশে ক্লিক করে বাছাই করুন</span>
+      <span style="flex:1"></span>
+      <span id="txtBox" style="display:none;align-items:center;gap:6px"><input id="txtIn" placeholder="যেমন: A, H_2O, x^2" style="font:inherit;font-size:14px;padding:6px 8px;border:1px solid #cfd5dc;border-radius:8px;width:150px"><button class="btn sec small" id="txtBtn">✏️ লেখা বসান</button></span>
+      <input type="color" id="selColor" title="রং" disabled>
+      <input type="range" id="selWidth" min="0.5" max="20" step="0.5" style="width:110px" title="পুরুত্ব" disabled>
+      <button class="btn ghost small" id="delBtn" disabled>🗑 মুছুন</button>
+      <button class="btn ghost small" id="undoBtn" disabled>↶ আগের অবস্থা</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="ai" id="aiBox">
+      <div class="aihead"><span class="aiico">🤖</span><b>Claude AI সহায়তা</b> <span class="aist">(ঐচ্ছিক)</span><span class="aist" id="aiState">—</span><span style="flex:1"></span>
+        <button class="btn sec small" id="aiBtn" disabled>✨ AI দিয়ে লেখা পড়ুন ও ভুল ঠিক করুন</button>
+        <button class="btn ghost small" id="aiStop" style="display:none">থামান</button></div>
+      <div class="aibody" id="aiBody">সব প্রধান কাজ (আঁকা, সোজা করা, লেখা পড়া, .AI ডাউনলোড) Claude ছাড়াই ফ্রিতে হয়। এই বাটনটি ঐচ্ছিক: খুব অস্পষ্ট লেখা থাকলে Claude দিয়ে আরেকবার পড়িয়ে নিতে পারেন (আপনার Claude অ্যাকাউন্টের ব্যবহার থেকে খরচ হবে)।</div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script type="text/plain" id="engsrc">/* =====================================================================
+ *  VectorKit engine — raster diagram → clean, standardized vector shapes
+ *  Pure JS, no dependencies. Works in browser (window.VecEngine) and Node.
+ * ===================================================================== */
+(function (root) {
+  'use strict';
+
+  // ------------------------------------------------------------------ utils
+  const hypot = Math.hypot, abs = Math.abs, PI = Math.PI;
+  const dist = (a, b) => hypot(a[0] - b[0], a[1] - b[1]);
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+  const angOf = (v) => Math.atan2(v[1], v[0]);
+  function angDiff(a, b) { let d = (a - b) % (2 * PI); if (d > PI) d -= 2 * PI; if (d < -PI) d += 2 * PI; return d; }
+  function median(arr) { if (!arr.length) return 0; const s = Float64Array.from(arr).sort(); return s[s.length >> 1]; }
+
+  function solveLinear(A, b) { // gaussian elimination, A n×n (array of arrays)
+    const n = b.length; A = A.map((r) => r.slice()); b = b.slice();
+    for (let i = 0; i < n; i++) {
+      let p = i; for (let r = i + 1; r < n; r++) if (abs(A[r][i]) > abs(A[p][i])) p = r;
+      if (abs(A[p][i]) < 1e-12) return null;
+      [A[i], A[p]] = [A[p], A[i]]; [b[i], b[p]] = [b[p], b[i]];
+      for (let r = i + 1; r < n; r++) { const f = A[r][i] / A[i][i]; for (let c = i; c < n; c++) A[r][c] -= f * A[i][c]; b[r] -= f * b[i]; }
+    }
+    const x = new Array(n).fill(0);
+    for (let i = n - 1; i >= 0; i--) { let s = b[i]; for (let c = i + 1; c < n; c++) s -= A[i][c] * x[c]; x[i] = s / A[i][i]; }
+    return x;
+  }
+
+  // ------------------------------------------------- 1. background / ink mask
+  // Smooth lighting model: robust quadratic surface fitted to paper blocks.
+  function fitBackground(ch, w, h, gray) {
+    const B = Math.max(16, Math.round(Math.min(w, h) / 24));
+    const blocks = [];
+    for (let by = 0; by < h; by += B) for (let bx = 0; bx < w; bx += B) {
+      const vals = [], gv = [];
+      for (let y = by; y < Math.min(h, by + B); y += 2) for (let x = bx; x < Math.min(w, bx + B); x += 2) { vals.push(gray[y * w + x]); }
+      vals.sort((a, b) => a - b);
+      const g90 = vals[Math.floor(vals.length * 0.9)];
+      const cx = Math.min(w, bx + B / 2), cy = Math.min(h, by + B / 2);
+      blocks.push({ x: (cx / w) * 2 - 1, y: (cy / h) * 2 - 1, bx, by, g: g90 });
+    }
+    const basis = (x, y) => [1, x, y, x * x, x * y, y * y];
+    let active = blocks.slice();
+    const maxG = Math.max(...blocks.map((b) => b.g));
+    active = active.filter((b) => b.g > maxG - 90); // discard obviously covered blocks
+    let coef = null;
+    for (let it = 0; it < 4; it++) {
+      if (active.length < 8) break;
+      const A = Array.from({ length: 6 }, () => new Array(6).fill(0)), r = new Array(6).fill(0);
+      for (const b of active) { const f = basis(b.x, b.y); for (let i = 0; i < 6; i++) { r[i] += f[i] * b.g; for (let j = 0; j < 6; j++) A[i][j] += f[i] * f[j]; } }
+      for (let i = 0; i < 6; i++) A[i][i] += 1e-3;
+      coef = solveLinear(A, r); if (!coef) break;
+      const res = active.map((b) => b.g - basis(b.x, b.y).reduce((s, f, i) => s + f * coef[i], 0));
+      const sd = Math.sqrt(res.reduce((s, v) => s + v * v, 0) / res.length) + 2;
+      active = active.filter((b, i) => res[i] > -2.0 * sd);
+    }
+    // per channel fits on the accepted blocks
+    const keep = new Set(active.map((b) => b.bx + ',' + b.by));
+    const out = [];
+    for (let c = 0; c < 3; c++) {
+      const A = Array.from({ length: 6 }, () => new Array(6).fill(0)), r = new Array(6).fill(0);
+      let cnt = 0;
+      for (const b of blocks) {
+        if (!keep.has(b.bx + ',' + b.by)) continue;
+        const vals = [];
+        for (let y = b.by; y < Math.min(h, b.by + B); y += 2) for (let x = b.bx; x < Math.min(w, b.bx + B); x += 2) vals.push(ch[c][y * w + x]);
+        vals.sort((a, b2) => a - b2);
+        const v = vals[Math.floor(vals.length * 0.9)];
+        const f = basis(b.x, b.y); cnt++;
+        for (let i = 0; i < 6; i++) { r[i] += f[i] * v; for (let j = 0; j < 6; j++) A[i][j] += f[i] * f[j]; }
+      }
+      for (let i = 0; i < 6; i++) A[i][i] += 1e-3;
+      const k = cnt >= 8 ? solveLinear(A, r) : null;
+      out.push(k || [255, 0, 0, 0, 0, 0]);
+    }
+    return { coefs: out, basis };
+  }
+
+  function otsu(hist, total) {
+    let sum = 0; for (let i = 0; i < 256; i++) sum += i * hist[i];
+    let sumB = 0, wB = 0, best = 0, th = 128;
+    for (let t = 0; t < 256; t++) {
+      wB += hist[t]; if (!wB) continue; const wF = total - wB; if (!wF) break;
+      sumB += t * hist[t]; const mB = sumB / wB, mF = (sum - sumB) / wF;
+      const v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; th = t; }
+    }
+    return th;
+  }
+
+  function normalizeImage(rgba, w, h, opts) {
+    const n = w * h, R = new Float32Array(n), G = new Float32Array(n), Bc = new Float32Array(n), gray = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const a = rgba[i * 4 + 3] / 255; // composite transparent images on white
+      R[i] = rgba[i * 4] * a + 255 * (1 - a); G[i] = rgba[i * 4 + 1] * a + 255 * (1 - a); Bc[i] = rgba[i * 4 + 2] * a + 255 * (1 - a);
+      gray[i] = 0.299 * R[i] + 0.587 * G[i] + 0.114 * Bc[i];
+    }
+    const bg = fitBackground([R, G, Bc], w, h, gray);
+    const out = { r: new Uint8ClampedArray(n), g: new Uint8ClampedArray(n), b: new Uint8ClampedArray(n), lum: new Uint8ClampedArray(n) };
+    const chans = [R, G, Bc], dst = [out.r, out.g, out.b];
+    for (let y = 0; y < h; y++) {
+      const ny = (y / h) * 2 - 1;
+      for (let x = 0; x < w; x++) {
+        const nx = (x / w) * 2 - 1, f = bg.basis(nx, ny), i = y * w + x;
+        for (let c = 0; c < 3; c++) {
+          let b = 0; for (let k = 0; k < 6; k++) b += f[k] * bg.coefs[c][k];
+          b = clamp(b, 40, 255);
+          dst[c][i] = (chans[c][i] / b) * 255;
+        }
+        out.lum[i] = 0.299 * out.r[i] + 0.587 * out.g[i] + 0.114 * out.b[i];
+      }
+    }
+    return out;
+  }
+
+  // sliding-window max/min (monotonic deque, O(n))
+  function slide1D(src, out, len, stride, off, r, isMax, q) {
+    let head = 0, tail = 0;
+    for (let i = 0; i < len + r; i++) {
+      if (i < len) { const v = src[off + i * stride]; while (tail > head && (isMax ? src[off + q[tail - 1] * stride] <= v : src[off + q[tail - 1] * stride] >= v)) tail--; q[tail++] = i; }
+      const c = i - r; if (c < 0) continue;
+      while (q[head] < c - r) head++;
+      out[off + c * stride] = src[off + q[head] * stride];
+    }
+  }
+  function filter2D(src, w, h, r, isMax) {
+    const tmp = new Float32Array(w * h), out = new Float32Array(w * h), q = new Int32Array(Math.max(w, h) + 1);
+    for (let y = 0; y < h; y++) slide1D(src, tmp, w, 1, y * w, r, isMax, q);
+    for (let x = 0; x < w; x++) slide1D(tmp, out, h, w, x, r, isMax, q);
+    return out;
+  }
+  const maxFilter = (src, w, h, r) => filter2D(src, w, h, r, true);
+  function inkMask(norm, w, h, opts) {
+    const n = w * h, hist = new Uint32Array(256);
+    for (let i = 0; i < n; i++) hist[norm.lum[i]]++;
+    const T = clamp(otsu(hist, n), 105, 205) + (opts.sensitivity || 0);
+    const d = new Float32Array(n); for (let i = 0; i < n; i++) d[i] = 255 - norm.lum[i];
+    // morphological top-hat: darkness relative to the local paper (removes shadows / paper edges)
+    const R2 = Math.max(10, Math.round(Math.min(w, h) / 55));
+    const opened = filter2D(filter2D(d, w, h, R2, false), w, h, R2, true);
+    const th = new Float32Array(n); for (let i = 0; i < n; i++) th[i] = d[i] - opened[i];
+    const sample = []; for (let i = 0; i < n; i += 7) sample.push(th[i]); sample.sort((a, b) => a - b);
+    const med = sample[sample.length >> 1]; const mad = median(sample.map((v) => abs(v - med))) || 1;
+    const floor = med + Math.max(14, 7 * mad) - (opts.sensitivity || 0) * 0.5;
+    const inkVals = sample.filter((v) => v > floor); inkVals.sort((a, b) => a - b);
+    const peak = inkVals.length ? inkVals[Math.floor(inkVals.length * 0.9)] : 255;
+    const R = Math.max(4, Math.round(Math.min(w, h) / 160));
+    const lmax = maxFilter(th, w, h, R);
+    const absDark = 255 - Math.min(T, 110); // solid dark areas (filled black shapes) are always ink
+    const strong = new Uint8Array(n), weak = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const thrS = Math.max(floor, 0.5 * lmax[i], Math.min(255 - T, 0.42 * peak));
+      const thrW = Math.max(floor * 0.9, 0.42 * lmax[i], Math.min(255 - T - 15, 0.34 * peak));
+      const r = norm.r[i], g = norm.g[i], b = norm.b[i], ch = Math.max(r, g, b) - Math.min(r, g, b);
+      if (th[i] > thrS || d[i] > absDark || ch > 70) strong[i] = 1; else if (th[i] > thrW || ch > 55) weak[i] = 1;
+    }
+    const mask = strong.slice(); const st = []; for (let i = 0; i < n; i++) if (strong[i]) st.push(i);
+    while (st.length) { const p = st.pop(), x = p % w, y = (p / w) | 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue; const q = yy * w + xx; if (weak[q] && !mask[q]) { mask[q] = 1; st.push(q); } } }
+    return { mask, T, faint: peak < 115 };
+  }
+
+  // ------------------------------------------------- 2. colour layers
+  function colorLayers(norm, mask, n, opts) {
+    const idx = []; for (let i = 0; i < n; i++) if (mask[i]) idx.push(i);
+    if (!idx.length) return { labels: new Int16Array(n).fill(-1), centers: [] };
+    const step = Math.max(1, Math.floor(idx.length / 20000));
+    const S = []; for (let k = 0; k < idx.length; k += step) { const i = idx[k]; S.push([norm.r[i], norm.g[i], norm.b[i]]); }
+    const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+    // farthest point init starting from darkest
+    let centers = [S.reduce((m, p) => (p[0] + p[1] + p[2] < m[0] + m[1] + m[2] ? p : m), S[0]).slice()];
+    const maxK = opts.monochrome ? 1 : 8;
+    while (centers.length < maxK) {
+      let far = null, fd = -1;
+      for (const p of S) { let md = Infinity; for (const c of centers) md = Math.min(md, d2(p, c)); if (md > fd) { fd = md; far = p; } }
+      if (Math.sqrt(fd) < 75) break;
+      centers.push(far.slice());
+    }
+    const assign = new Int16Array(S.length);
+    for (let it = 0; it < 10; it++) {
+      const acc = centers.map(() => [0, 0, 0, 0]);
+      for (let s = 0; s < S.length; s++) {
+        let bi = 0, bd = Infinity; for (let c = 0; c < centers.length; c++) { const d = d2(S[s], centers[c]); if (d < bd) { bd = d; bi = c; } }
+        assign[s] = bi; const a = acc[bi]; a[0] += S[s][0]; a[1] += S[s][1]; a[2] += S[s][2]; a[3]++;
+      }
+      centers = centers.map((c, k) => (acc[k][3] ? [acc[k][0] / acc[k][3], acc[k][1] / acc[k][3], acc[k][2] / acc[k][3]] : c));
+      // merge close / tiny clusters
+      let merged = true;
+      while (merged) {
+        merged = false;
+        const cnt = centers.map((_, k) => acc[k] ? acc[k][3] : 0);
+        for (let a = 0; a < centers.length && !merged; a++) for (let b = a + 1; b < centers.length && !merged; b++) {
+          const lumA = (centers[a][0] + centers[a][1] + centers[a][2]) / 3, lumB = (centers[b][0] + centers[b][1] + centers[b][2]) / 3;
+          const chA = Math.max(...centers[a]) - Math.min(...centers[a]), chB = Math.max(...centers[b]) - Math.min(...centers[b]);
+          const bothDarkNeutral = chA < 45 && chB < 45 && lumA < 150 && lumB < 150;
+          if (Math.sqrt(d2(centers[a], centers[b])) < 60 || bothDarkNeutral) {
+            const wa = cnt[a] + 1, wb = cnt[b] + 1;
+            centers[a] = centers[a].map((v, i) => (v * wa + centers[b][i] * wb) / (wa + wb));
+            // keep the darker/more saturated looking one as representative for neutrals
+            if (bothDarkNeutral) centers[a] = lumA < lumB ? centers[a] : centers[a];
+            centers.splice(b, 1); acc.splice(b, 1); merged = true;
+          }
+        }
+      }
+      const total = S.length;
+      const accCnt = new Array(centers.length).fill(0); for (let s = 0; s < S.length; s++) if (assign[s] < centers.length) accCnt[assign[s]]++;
+      if (centers.length > 1) {
+        const tiny = accCnt.map((c, k) => (c < total * 0.004 ? k : -1)).filter((k) => k >= 0);
+        if (tiny.length && tiny.length < centers.length) centers = centers.filter((_, k) => !tiny.includes(k));
+      }
+    }
+    // final assignment for all ink pixels; pixels far from every centre (antialias mixes) get -2 = "uncertain"
+    const labels = new Int16Array(n).fill(-1);
+    const dists = new Float32Array(n);
+    for (const i of idx) {
+      const p = [norm.r[i], norm.g[i], norm.b[i]];
+      let bi = 0, bd = Infinity; for (let c = 0; c < centers.length; c++) { const d = d2(p, centers[c]); if (d < bd) { bd = d; bi = c; } }
+      labels[i] = bi; dists[i] = Math.sqrt(bd);
+    }
+    return { labels, centers, dists };
+  }
+
+  // ------------------------------------------------- 3. binary helpers
+  function components(mask, w, h, minArea) {
+    const n = w * h, lab = new Int32Array(n).fill(-1), comps = [];
+    const stack = new Int32Array(n);
+    for (let s = 0; s < n; s++) {
+      if (!mask[s] || lab[s] >= 0) continue;
+      const id = comps.length; let sp = 0; stack[sp++] = s; lab[s] = id;
+      const pix = []; let minx = w, miny = h, maxx = 0, maxy = 0;
+      while (sp) {
+        const p = stack[--sp]; pix.push(p);
+        const x = p % w, y = (p / w) | 0;
+        if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y;
+        for (let dy = -1; dy <= 1; dy++) { const yy = y + dy; if (yy < 0 || yy >= h) continue;
+          for (let dx = -1; dx <= 1; dx++) { const xx = x + dx; if (xx < 0 || xx >= w) continue; const q = yy * w + xx; if (mask[q] && lab[q] < 0) { lab[q] = id; stack[sp++] = q; } } }
+      }
+      comps.push({ id, pix, area: pix.length, minx, miny, maxx, maxy });
+    }
+    return { lab, comps: comps.filter((c) => c.area >= minArea) };
+  }
+
+  // crop a component into a padded local bitmap
+  function cropComp(c, w, pad) {
+    const cw = c.maxx - c.minx + 1 + 2 * pad, chh = c.maxy - c.miny + 1 + 2 * pad;
+    const m = new Uint8Array(cw * chh);
+    for (const p of c.pix) { const x = (p % w) - c.minx + pad, y = ((p / w) | 0) - c.miny + pad; m[y * cw + x] = 1; }
+    return { m, w: cw, h: chh, ox: c.minx - pad, oy: c.miny - pad };
+  }
+
+  function fillSmallHoles(bm, maxHole) {
+    const { m, w, h } = bm, inv = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) inv[i] = m[i] ? 0 : 1;
+    const { comps } = components4(inv, w, h);
+    for (const c of comps) {
+      if (c.minx === 0 || c.miny === 0 || c.maxx === w - 1 || c.maxy === h - 1) continue;
+      if (c.area <= maxHole) for (const p of c.pix) m[p] = 1;
+    }
+  }
+  function components4(mask, w, h) {
+    const n = w * h, lab = new Int32Array(n).fill(-1), comps = [], stack = [];
+    for (let s = 0; s < n; s++) {
+      if (!mask[s] || lab[s] >= 0) continue;
+      const id = comps.length; stack.length = 0; stack.push(s); lab[s] = id; const pix = [];
+      let minx = w, miny = h, maxx = 0, maxy = 0;
+      while (stack.length) {
+        const p = stack.pop(); pix.push(p); const x = p % w, y = (p / w) | 0;
+        if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y;
+        if (x > 0 && mask[p - 1] && lab[p - 1] < 0) { lab[p - 1] = id; stack.push(p - 1); }
+        if (x < w - 1 && mask[p + 1] && lab[p + 1] < 0) { lab[p + 1] = id; stack.push(p + 1); }
+        if (y > 0 && mask[p - w] && lab[p - w] < 0) { lab[p - w] = id; stack.push(p - w); }
+        if (y < h - 1 && mask[p + w] && lab[p + w] < 0) { lab[p + w] = id; stack.push(p + w); }
+      }
+      comps.push({ pix, area: pix.length, minx, miny, maxx, maxy });
+    }
+    return { lab, comps };
+  }
+
+  // exact Euclidean distance transform (Felzenszwalb) → distance to background
+  function edt(bm) {
+    const { m, w, h } = bm, INF = 1e12, f = new Float64Array(Math.max(w, h)), d = new Float64Array(w * h);
+    const v = new Int32Array(Math.max(w, h)), z = new Float64Array(Math.max(w, h) + 1), out = new Float64Array(Math.max(w, h));
+    function dt1(len) {
+      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+      for (let q = 1; q < len; q++) {
+        let s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+        while (s <= z[k]) { k--; s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); }
+        k++; v[k] = q; z[k] = s; z[k + 1] = INF;
+      }
+      k = 0; for (let q = 0; q < len; q++) { while (z[k + 1] < q) k++; out[q] = (q - v[k]) * (q - v[k]) + f[v[k]]; }
+    }
+    for (let x = 0; x < w; x++) { for (let y = 0; y < h; y++) f[y] = m[y * w + x] ? INF : 0; dt1(h); for (let y = 0; y < h; y++) d[y * w + x] = out[y]; }
+    for (let y = 0; y < h; y++) { for (let x = 0; x < w; x++) f[x] = d[y * w + x]; dt1(w); for (let x = 0; x < w; x++) d[y * w + x] = Math.sqrt(out[x]); }
+    return d;
+  }
+
+  // Zhang–Suen thinning
+  function thin(bm) {
+    const { w, h } = bm, m = bm.m.slice();
+    let changed = true; const del = [];
+    while (changed) {
+      changed = false;
+      for (let pass = 0; pass < 2; pass++) {
+        del.length = 0;
+        for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+          const i = y * w + x; if (!m[i]) continue;
+          const p2 = m[i - w], p3 = m[i - w + 1], p4 = m[i + 1], p5 = m[i + w + 1], p6 = m[i + w], p7 = m[i + w - 1], p8 = m[i - 1], p9 = m[i - w - 1];
+          const B = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9; if (B < 2 || B > 6) continue;
+          const A = (!p2 && p3) + (!p3 && p4) + (!p4 && p5) + (!p5 && p6) + (!p6 && p7) + (!p7 && p8) + (!p8 && p9) + (!p9 && p2);
+          if (A !== 1) continue;
+          if (pass === 0) { if (p2 && p4 && p6) continue; if (p4 && p6 && p8) continue; }
+          else { if (p2 && p4 && p8) continue; if (p2 && p6 && p8) continue; }
+          del.push(i);
+        }
+        if (del.length) { changed = true; for (const i of del) m[i] = 0; }
+      }
+    }
+    // remove redundant staircase pixels (keep 8-connectivity, 1px wide)
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x; if (!m[i]) continue;
+      const N = m[i - w], S = m[i + w], E = m[i + 1], W = m[i - 1];
+      if ((N && E && !m[i + w - 1] && !S && !W) || (N && W && !m[i + w + 1] && !S && !E) ||
+          (S && E && !m[i - w - 1] && !N && !W) || (S && W && !m[i - w + 1] && !N && !E)) m[i] = 0;
+    }
+    return m;
+  }
+
+  // ------------------------------------------------- 4. skeleton graph
+  const NB = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]];
+  function skeletonGraph(sk, w, h) {
+    const at = (x, y) => (x >= 0 && y >= 0 && x < w && y < h ? sk[y * w + x] : 0);
+    const nodeId = new Int32Array(w * h).fill(-1), nodes = [];
+    const cross = (x, y) => { let c = 0; for (let k = 0; k < 8; k++) { const a = at(x + NB[k][0], y + NB[k][1]), b = at(x + NB[(k + 1) % 8][0], y + NB[(k + 1) % 8][1]); if (!a && b) c++; } return c; };
+    const deg = (x, y) => { let c = 0; for (const [dx, dy] of NB) c += at(x + dx, y + dy); return c; };
+    const special = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (!sk[y * w + x]) continue;
+      const cn = cross(x, y), dg = deg(x, y);
+      if (cn >= 3 || (dg >= 3 && cn !== 2)) special[y * w + x] = 2; else if (cn <= 1) special[y * w + x] = 1;
+    }
+    // group adjacent junction pixels
+    for (let i = 0; i < w * h; i++) {
+      if (!special[i] || nodeId[i] >= 0) continue;
+      const id = nodes.length, st = [i], pix = []; nodeId[i] = id;
+      while (st.length) {
+        const p = st.pop(); pix.push(p); const x = p % w, y = (p / w) | 0;
+        if (special[p] !== 2) continue;
+        for (const [dx, dy] of NB) { const q = (y + dy) * w + (x + dx); if (at(x + dx, y + dy) && special[q] === 2 && nodeId[q] < 0) { nodeId[q] = id; st.push(q); } }
+      }
+      let sx = 0, sy = 0; for (const p of pix) { sx += p % w; sy += (p / w) | 0; }
+      nodes.push({ id, pix, x: sx / pix.length, y: sy / pix.length, junction: special[i] === 2, edges: [] });
+    }
+    const visited = new Uint8Array(w * h), edges = [];
+    function walk(startNode, sx, sy, fx, fy) {
+      const pts = [[startNode.x, startNode.y], [fx, fy]];
+      visited[fy * w + fx] = 1; let cx = fx, cy = fy, end = -1;
+      for (let guard = 0; guard < w * h; guard++) {
+        let nxt = null, nodeHit = -1;
+        for (const [dx, dy] of NB) {
+          const x = cx + dx, y = cy + dy; if (!at(x, y)) continue; const q = y * w + x;
+          if (nodeId[q] >= 0) { if (nodeId[q] !== startNode.id || pts.length > 3) { if (nodeHit < 0 || nodeId[q] !== startNode.id) nodeHit = nodeId[q]; } continue; }
+          if (visited[q]) continue;
+          if (!nxt || (dx === 0 || dy === 0)) nxt = [x, y];
+        }
+        if (nodeHit >= 0 && (!nxt || pts.length > 2)) { end = nodeHit; break; }
+        if (!nxt) break;
+        visited[nxt[1] * w + nxt[0]] = 1; pts.push(nxt); cx = nxt[0]; cy = nxt[1];
+      }
+      if (end >= 0) pts.push([nodes[end].x, nodes[end].y]);
+      return { pts, a: startNode.id, b: end };
+    }
+    for (const nd of nodes) {
+      for (const p of nd.pix) {
+        const x = p % w, y = (p / w) | 0;
+        for (const [dx, dy] of NB) {
+          const xx = x + dx, yy = y + dy; if (!at(xx, yy)) continue; const q = yy * w + xx;
+          if (nodeId[q] >= 0 || visited[q]) continue;
+          const e = walk(nd, x, y, xx, yy);
+          if (e.b < 0) { // dead end without node (shouldn't happen often) → make an endpoint node
+            const last = e.pts[e.pts.length - 1];
+            const nn = { id: nodes.length, pix: [], x: last[0], y: last[1], junction: false, edges: [] };
+            nodes.push(nn); e.b = nn.id;
+          }
+          edges.push(e);
+        }
+      }
+    }
+    // pure cycles
+    for (let i = 0; i < w * h; i++) {
+      if (!sk[i] || visited[i] || nodeId[i] >= 0) continue;
+      const pts = []; let cx = i % w, cy = (i / w) | 0; visited[i] = 1; pts.push([cx, cy]);
+      for (;;) {
+        let nxt = null;
+        for (const [dx, dy] of NB) { const x = cx + dx, y = cy + dy; if (!at(x, y) || visited[y * w + x]) continue; if (!nxt || dx === 0 || dy === 0) nxt = [x, y]; }
+        if (!nxt) break; visited[nxt[1] * w + nxt[0]] = 1; pts.push(nxt); cx = nxt[0]; cy = nxt[1];
+      }
+      if (pts.length > 8) edges.push({ pts, a: -1, b: -1, cycle: true });
+    }
+    edges.forEach((e, k) => { e.id = k; if (e.a >= 0) nodes[e.a].edges.push(k); if (e.b >= 0) nodes[e.b].edges.push(k); });
+    return { nodes, edges };
+  }
+
+  const pathLen = (pts) => { let L = 0; for (let i = 1; i < pts.length; i++) L += dist(pts[i - 1], pts[i]); return L; };
+
+  // direction of edge leaving node `nid`, measured over distance d
+  function edgeDirFrom(e, nid, d) {
+    const pts = e.a === nid ? e.pts : e.pts.slice().reverse();
+    let acc = 0, i = 1; for (; i < pts.length - 1 && acc < d; i++) acc += dist(pts[i - 1], pts[i]);
+    return angOf(sub(pts[i], pts[0]));
+  }
+
+  // prune spurs, detect arrowheads, merge straight-through edges into chains
+  function simplifyGraph(G, sw) {
+    const { nodes, edges } = G; const alive = edges.map(() => true); const arrows = [];
+    const len = edges.map((e) => pathLen(e.pts));
+    const incident = (nid) => nodes[nid].edges.filter((k) => alive[k]);
+    const otherEnd = (e, nid) => (e.a === nid ? e.b : e.a);
+    const isTip = (nid) => incident(nid).length === 1;
+    // contract very short junction–junction edges (split junctions in blobby areas)
+    const rJ = Math.max(4, 1.6 * sw);
+    for (const e of edges) {
+      if (!alive[e.id] || e.cycle || e.a < 0 || e.b < 0 || e.a === e.b) continue;
+      if (len[e.id] >= rJ || isTip(e.a) || isTip(e.b)) continue;
+      const A = nodes[e.a], Bn = nodes[e.b]; alive[e.id] = false;
+      const nx = (A.x + Bn.x) / 2, ny = (A.y + Bn.y) / 2; A.x = nx; A.y = ny;
+      for (const k of Bn.edges) { if (k === e.id) continue; const o = edges[k]; if (o.a === Bn.id) o.a = A.id; if (o.b === Bn.id) o.b = A.id; A.edges.push(k); }
+      Bn.edges = [];
+      for (const k of A.edges) { const o = edges[k]; if (o.a === A.id) o.pts[0] = [nx, ny]; if (o.b === A.id) o.pts[o.pts.length - 1] = [nx, ny]; }
+    }
+    // arrowheads: junction with 2 short back-pointing barbs (+ optional short forward spur) and one shaft
+    for (const nd of nodes) {
+      const inc = [...new Set(incident(nd.id))]; if (inc.length < 3 || inc.length > 4) continue;
+      const shortTip = inc.filter((k) => { const e = edges[k]; const o = otherEnd(e, nd.id); return o >= 0 && o !== nd.id && isTip(o) && len[k] < Math.max(10 * sw, 45); });
+      const longs = inc.filter((k) => !shortTip.includes(k));
+      let sh = null;
+      if (longs.length === 1) sh = longs[0];
+      else if (longs.length === 0) { sh = shortTip.slice().sort((x, y) => len[y] - len[x])[0]; }
+      if (sh === null) continue;
+      const others = shortTip.filter((k) => k !== sh);
+      const as = edgeDirFrom(edges[sh], nd.id, Math.min(len[sh] / 2, 6 * sw));
+      const barbs = [], fwd = [];
+      for (const k of others) {
+        const d = angDiff(edgeDirFrom(edges[k], nd.id, len[k] * 0.8), as);
+        if (abs(d) > 0.2 && abs(d) < 1.3 && len[k] > 1.2 * sw) barbs.push([k, d]);
+        else if (abs(d) > 2.4) fwd.push(k);
+      }
+      if (barbs.length !== 2 || fwd.length > 1 || barbs.length + fwd.length !== others.length) continue;
+      if (Math.sign(barbs[0][1]) === Math.sign(barbs[1][1])) continue;
+      if (len[sh] < 1.5 * Math.max(len[barbs[0][0]], len[barbs[1][0]])) continue;
+      let tip = [nd.x, nd.y];
+      if (fwd.length) { const e = edges[fwd[0]]; const o = nodes[otherEnd(e, nd.id)]; tip = [o.x, o.y]; alive[fwd[0]] = false; }
+      alive[barbs[0][0]] = alive[barbs[1][0]] = false;
+      arrows.push({ node: nd.id, tip, edge: sh, size: Math.max(dist(tip, [nd.x, nd.y]) + (len[barbs[0][0]] + len[barbs[1][0]]) / 2, 0), spread: (abs(barbs[0][1]) + abs(barbs[1][1])) / 2 });
+    }
+    // spur pruning
+    const spur = Math.max(4, 1.6 * sw);
+    for (let round = 0; round < 3; round++) {
+      let any = false;
+      for (const e of edges) {
+        if (!alive[e.id] || e.cycle) continue;
+        const ta = e.a >= 0 && isTip(e.a), tb = e.b >= 0 && isTip(e.b);
+        if (len[e.id] < spur && ((ta && !tb && incident(e.b).length >= 3) || (tb && !ta && incident(e.a).length >= 3))) { alive[e.id] = false; any = true; }
+      }
+      if (!any) break;
+    }
+    // pair edge ends at nodes for continuation
+    const pair = new Map(); // key `${edge}:${end}` -> key
+    const key = (k, end) => k + ':' + end;
+    for (const nd of nodes) {
+      const inc = incident(nd.id); if (inc.length < 2) continue;
+      const ends = [];
+      for (const k of inc) { const e = edges[k]; if (e.a === nd.id) ends.push({ k, end: 'a' }); if (e.b === nd.id) ends.push({ k, end: 'b' }); }
+      if (ends.length === 2 && !(ends[0].k === ends[1].k) && abs(angDiff(edgeDirFrom(edges[ends[0].k], nd.id, Math.max(8, 3 * sw)), edgeDirFrom(edges[ends[1].k], nd.id, Math.max(8, 3 * sw)))) > 0.9) { pair.set(key(ends[0].k, ends[0].end), key(ends[1].k, ends[1].end)); pair.set(key(ends[1].k, ends[1].end), key(ends[0].k, ends[0].end)); continue; }
+      const dirs = ends.map((o) => { const e = edges[o.k]; const pts = o.end === 'a' ? e.pts : e.pts.slice().reverse(); let acc = 0, i = 1; const d = Math.min(len[o.k] * 0.6, Math.max(12, 4 * sw)); for (; i < pts.length - 1 && acc < d; i++) acc += dist(pts[i - 1], pts[i]); return angOf(sub(pts[i], pts[0])); });
+      const cand = [];
+      for (let i = 0; i < ends.length; i++) for (let j = i + 1; j < ends.length; j++) { const d = abs(angDiff(dirs[i], dirs[j])); if (d > (145 * PI) / 180) cand.push([PI - d, i, j]); }
+      cand.sort((p, q) => p[0] - q[0]); const used = new Set();
+      for (const [, i, j] of cand) { if (used.has(i) || used.has(j)) continue; used.add(i); used.add(j); pair.set(key(ends[i].k, ends[i].end), key(ends[j].k, ends[j].end)); pair.set(key(ends[j].k, ends[j].end), key(ends[i].k, ends[i].end)); }
+    }
+    // build chains
+    const usedE = new Set(), chains = [];
+    function follow(startK, startEnd) { // startEnd = the end we start from (free end)
+      let pts = [], k = startK, enterEnd = startEnd, closed = false; const nodeSeq = [];
+      for (;;) {
+        usedE.add(k); const e = edges[k];
+        const seg = enterEnd === 'a' ? e.pts : e.pts.slice().reverse();
+        pts = pts.length ? pts.concat(seg.slice(1)) : seg.slice();
+        const exitEnd = enterEnd === 'a' ? 'b' : 'a';
+        const nxt = pair.get(key(k, exitEnd)); if (!nxt) break;
+        const [nk, ne] = nxt.split(':'); const nki = +nk;
+        if (usedE.has(nki)) { if (nki === startK) closed = true; break; }
+        k = nki; enterEnd = ne;
+      }
+      return { pts, closed };
+    }
+    for (const e of edges) {
+      if (!alive[e.id] || usedE.has(e.id) || e.cycle) continue;
+      if (!pair.has(key(e.id, 'a'))) chains.push(follow(e.id, 'a'));
+      else if (!pair.has(key(e.id, 'b'))) chains.push(follow(e.id, 'b'));
+    }
+    for (const e of edges) { if (!alive[e.id] || usedE.has(e.id)) continue; if (e.cycle) { usedE.add(e.id); chains.push({ pts: e.pts.concat([e.pts[0]]), closed: true }); } else chains.push(follow(e.id, 'a')); }
+    // arrow tips on chain endpoints
+    const arrowPts = arrows.map((a) => ({ x: nodes[a.node].x, y: nodes[a.node].y, tip: a.tip, size: a.size, spread: a.spread }));
+    return { chains, arrowPts };
+  }
+
+  // ------------------------------------------------- 5. curve analysis
+  function resample(pts, step, closed) {
+    const out = [pts[0].slice()]; let need = step;
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i], L = dist(a, b); let pos = 0;
+      while (L - pos >= need) { pos += need; const f = pos / L; out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]); need = step; }
+      need -= L - pos;
+    }
+    const last = pts[pts.length - 1]; if (!closed && dist(out[out.length - 1], last) > step * 0.3) out.push(last.slice());
+    if (closed && out.length > 2 && dist(out[out.length - 1], out[0]) < step * 0.5) out.pop();
+    return out;
+  }
+  function smooth(pts, r, closed, iters) {
+    let p = pts; const n = pts.length;
+    for (let it = 0; it < (iters || 1); it++) {
+      const q = p.map((v) => v.slice());
+      for (let i = 0; i < n; i++) {
+        if (!closed && (i < 1 || i > n - 2)) continue;
+        let sx = 0, sy = 0, c = 0;
+        for (let k = -r; k <= r; k++) { let j = i + k; if (closed) j = (j + n) % n; else j = clamp(j, 0, n - 1); const wt = r + 1 - abs(k); sx += p[j][0] * wt; sy += p[j][1] * wt; c += wt; }
+        q[i] = [sx / c, sy / c];
+      }
+      p = q;
+    }
+    return p;
+  }
+
+  function turnAt(p, i, k, closed) {
+    const n = p.length; let a = i - k, b = i + k;
+    if (closed) { a = (a + n) % n; b = b % n; } else { if (a < 0 || b >= n) return 0; }
+    const v1 = sub(p[i], p[a]), v2 = sub(p[b], p[i]);
+    return abs(angDiff(angOf(v2), angOf(v1)));
+  }
+
+  function findCorners(p, step, sw, closed, sharp) {
+    const n = p.length; const k1 = Math.max(2, Math.round(Math.max(5, 1.8 * sw) / step)), k2 = 2 * k1;
+    const minTurn = ((sharp || 32) * PI) / 180;
+    const score = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const t1 = turnAt(p, i, k1, closed), t2 = turnAt(p, i, k2, closed);
+      if (t1 > minTurn && t2 > minTurn * 0.9 && t1 > 0.62 * t2) score[i] = t1;
+    }
+    const corners = [];
+    for (let i = 0; i < n; i++) {
+      if (!score[i]) continue; let isMax = true;
+      for (let k = -k2; k <= k2; k++) { let j = i + k; if (closed) j = (j + n) % n; else if (j < 0 || j >= n) continue; if (score[j] > score[i] || (score[j] === score[i] && j < i && k !== 0)) { isMax = false; break; } }
+      if (isMax) corners.push(i);
+    }
+    if (!closed) return corners.filter((i) => i >= k1 && i <= n - 1 - k1);
+    return corners;
+  }
+
+  function fitLine(pts) { // total least squares
+    let mx = 0, my = 0; for (const p of pts) { mx += p[0]; my += p[1]; } mx /= pts.length; my /= pts.length;
+    let sxx = 0, sxy = 0, syy = 0; for (const p of pts) { const dx = p[0] - mx, dy = p[1] - my; sxx += dx * dx; sxy += dx * dy; syy += dy * dy; }
+    const th = 0.5 * Math.atan2(2 * sxy, sxx - syy), dx = Math.cos(th), dy = Math.sin(th);
+    let maxd = 0, ss = 0; for (const p of pts) { const d = abs(-(p[0] - mx) * dy + (p[1] - my) * dx); ss += d * d; if (d > maxd) maxd = d; }
+    return { mx, my, dx, dy, maxd, rms: Math.sqrt(ss / pts.length) };
+  }
+  const projOnLine = (L, p) => { const t = (p[0] - L.mx) * L.dx + (p[1] - L.my) * L.dy; return [L.mx + t * L.dx, L.my + t * L.dy]; };
+
+  function fitCircle(pts) {
+    // Kåsa algebraic fit followed by Gauss-Newton geometric refinement
+    let mx = 0, my = 0; for (const p of pts) { mx += p[0]; my += p[1]; } mx /= pts.length; my /= pts.length;
+    let Suu = 0, Svv = 0, Suv = 0, Suuu = 0, Svvv = 0, Suvv = 0, Svuu = 0;
+    for (const p of pts) { const u = p[0] - mx, v = p[1] - my; Suu += u * u; Svv += v * v; Suv += u * v; Suuu += u * u * u; Svvv += v * v * v; Suvv += u * v * v; Svuu += v * u * u; }
+    const det = Suu * Svv - Suv * Suv; if (abs(det) < 1e-9) return null;
+    const b1 = 0.5 * (Suuu + Suvv), b2 = 0.5 * (Svvv + Svuu);
+    let cx = mx + (b1 * Svv - b2 * Suv) / det, cy = my + (Suu * b2 - Suv * b1) / det;
+    let r = 0; for (const p of pts) r += dist(p, [cx, cy]); r /= pts.length;
+    for (let it = 0; it < 12; it++) {
+      let JtJ = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], Jtr = [0, 0, 0];
+      for (const p of pts) { const d = dist(p, [cx, cy]) || 1e-9; const res = d - r; const J = [-(p[0] - cx) / d, -(p[1] - cy) / d, -1];
+        for (let i = 0; i < 3; i++) { Jtr[i] += J[i] * res; for (let j = 0; j < 3; j++) JtJ[i][j] += J[i] * J[j]; } }
+      const s = solveLinear(JtJ, Jtr); if (!s) break; cx -= s[0]; cy -= s[1]; r -= s[2];
+      if (abs(s[0]) + abs(s[1]) + abs(s[2]) < 1e-4) break;
+    }
+    let ss = 0, maxd = 0; for (const p of pts) { const d = abs(dist(p, [cx, cy]) - r); ss += d * d; if (d > maxd) maxd = d; }
+    return { cx, cy, r: abs(r), rms: Math.sqrt(ss / pts.length), maxd };
+  }
+
+  function fitEllipse(pts) { // PCA based ellipse estimate + radial refinement
+    let mx = 0, my = 0; for (const p of pts) { mx += p[0]; my += p[1]; } mx /= pts.length; my /= pts.length;
+    let sxx = 0, sxy = 0, syy = 0; for (const p of pts) { const dx = p[0] - mx, dy = p[1] - my; sxx += dx * dx; sxy += dx * dy; syy += dy * dy; }
+    const th = 0.5 * Math.atan2(2 * sxy, sxx - syy), c = Math.cos(th), s = Math.sin(th);
+    const loc = pts.map((p) => { const dx = p[0] - mx, dy = p[1] - my; return [dx * c + dy * s, -dx * s + dy * c]; });
+    let a = 0, b = 0; for (const q of loc) { a = Math.max(a, abs(q[0])); b = Math.max(b, abs(q[1])); }
+    // least squares for 1/a², 1/b² : x²A + y²B = 1
+    let s11 = 0, s12 = 0, s22 = 0, r1 = 0, r2 = 0;
+    for (const q of loc) { const X = q[0] * q[0], Y = q[1] * q[1]; s11 += X * X; s12 += X * Y; s22 += Y * Y; r1 += X; r2 += Y; }
+    const sol = solveLinear([[s11, s12], [s12, s22]], [r1, r2]);
+    if (sol && sol[0] > 0 && sol[1] > 0) { a = 1 / Math.sqrt(sol[0]); b = 1 / Math.sqrt(sol[1]); }
+    let ss = 0, maxd = 0;
+    for (const q of loc) { const t = Math.atan2(q[1] / b, q[0] / a); const e = [a * Math.cos(t), b * Math.sin(t)]; const d = dist(q, e); ss += d * d; maxd = Math.max(maxd, d); }
+    return { cx: mx, cy: my, rx: a, ry: b, rot: th, rms: Math.sqrt(ss / pts.length), maxd };
+  }
+
+  // Schneider bezier fitting -------------------------------------------
+  function bezierPt(b, t) { const mt = 1 - t; const a = mt * mt * mt, c = 3 * mt * mt * t, d = 3 * mt * t * t, e = t * t * t; return [a * b[0][0] + c * b[1][0] + d * b[2][0] + e * b[3][0], a * b[0][1] + c * b[1][1] + d * b[2][1] + e * b[3][1]]; }
+  function normalize(v) { const l = hypot(v[0], v[1]) || 1; return [v[0] / l, v[1] / l]; }
+  function fitCubic(pts, tHat1, tHat2, err, out, depth) {
+    const n = pts.length;
+    if (n === 2) { const d = dist(pts[0], pts[1]) / 3; out.push([pts[0], [pts[0][0] + tHat1[0] * d, pts[0][1] + tHat1[1] * d], [pts[1][0] + tHat2[0] * d, pts[1][1] + tHat2[1] * d], pts[1]]); return; }
+    let u = chordParam(pts); let bez = genBez(pts, u, tHat1, tHat2);
+    let [maxE, split] = maxErr(pts, bez, u);
+    if (maxE < err) { out.push(bez); return; }
+    if (maxE < err * 4) for (let i = 0; i < 6; i++) { u = reparam(pts, u, bez); bez = genBez(pts, u, tHat1, tHat2); [maxE, split] = maxErr(pts, bez, u); if (maxE < err) { out.push(bez); return; } }
+    if (depth > 12) { out.push(bez); return; }
+    split = clamp(split, 1, n - 2);
+    const tc = normalize(sub(pts[split - 1], pts[split + 1]));
+    fitCubic(pts.slice(0, split + 1), tHat1, tc, err, out, depth + 1);
+    fitCubic(pts.slice(split), [-tc[0], -tc[1]], tHat2, err, out, depth + 1);
+  }
+  function chordParam(pts) { const u = [0]; for (let i = 1; i < pts.length; i++) u.push(u[i - 1] + dist(pts[i], pts[i - 1])); const L = u[u.length - 1] || 1; return u.map((v) => v / L); }
+  function genBez(pts, u, t1, t2) {
+    const n = pts.length, p0 = pts[0], p3 = pts[n - 1]; let C00 = 0, C01 = 0, C11 = 0, X0 = 0, X1 = 0;
+    for (let i = 0; i < n; i++) {
+      const t = u[i], mt = 1 - t, b0 = mt * mt * mt, b1 = 3 * mt * mt * t, b2 = 3 * mt * t * t, b3 = t * t * t;
+      const A1 = [t1[0] * b1, t1[1] * b1], A2 = [t2[0] * b2, t2[1] * b2];
+      C00 += A1[0] * A1[0] + A1[1] * A1[1]; C01 += A1[0] * A2[0] + A1[1] * A2[1]; C11 += A2[0] * A2[0] + A2[1] * A2[1];
+      const tmp = [pts[i][0] - (p0[0] * (b0 + b1) + p3[0] * (b2 + b3)), pts[i][1] - (p0[1] * (b0 + b1) + p3[1] * (b2 + b3))];
+      X0 += A1[0] * tmp[0] + A1[1] * tmp[1]; X1 += A2[0] * tmp[0] + A2[1] * tmp[1];
+    }
+    const det = C00 * C11 - C01 * C01; let a1 = 0, a2 = 0;
+    if (abs(det) > 1e-12) { a1 = (X0 * C11 - X1 * C01) / det; a2 = (C00 * X1 - C01 * X0) / det; }
+    const segL = dist(p0, p3), eps = 1e-6 * segL;
+    if (a1 < eps || a2 < eps || a1 > segL * 2 || a2 > segL * 2) { a1 = a2 = segL / 3; }
+    return [p0, [p0[0] + t1[0] * a1, p0[1] + t1[1] * a1], [p3[0] + t2[0] * a2, p3[1] + t2[1] * a2], p3];
+  }
+  function maxErr(pts, bez, u) { let m = 0, s = (pts.length / 2) | 0; for (let i = 1; i < pts.length - 1; i++) { const d = dist(bezierPt(bez, u[i]), pts[i]); if (d > m) { m = d; s = i; } } return [m, s]; }
+  function reparam(pts, u, b) {
+    return u.map((t, i) => {
+      const q = bezierPt(b, t), mt = 1 - t;
+      const q1 = [3 * (mt * mt * (b[1][0] - b[0][0]) + 2 * mt * t * (b[2][0] - b[1][0]) + t * t * (b[3][0] - b[2][0])), 3 * (mt * mt * (b[1][1] - b[0][1]) + 2 * mt * t * (b[2][1] - b[1][1]) + t * t * (b[3][1] - b[2][1]))];
+      const q2 = [6 * (mt * (b[2][0] - 2 * b[1][0] + b[0][0]) + t * (b[3][0] - 2 * b[2][0] + b[1][0])), 6 * (mt * (b[2][1] - 2 * b[1][1] + b[0][1]) + t * (b[3][1] - 2 * b[2][1] + b[1][1]))];
+      const num = (q[0] - pts[i][0]) * q1[0] + (q[1] - pts[i][1]) * q1[1], den = q1[0] * q1[0] + q1[1] * q1[1] + (q[0] - pts[i][0]) * q2[0] + (q[1] - pts[i][1]) * q2[1];
+      return abs(den) < 1e-12 ? t : clamp(t - num / den, 0, 1);
+    });
+  }
+  function fitBeziers(pts, err) {
+    if (pts.length < 2) return [];
+    const n = pts.length, k = Math.min(3, n - 1);
+    const t1 = normalize(sub(pts[k], pts[0])), t2 = normalize(sub(pts[n - 1 - k], pts[n - 1]));
+    const out = []; fitCubic(pts, t1, t2, err, out, 0); return out;
+  }
+
+  // classify one open piece (between corners)
+  function classifyPiece(p, sw, scale, glyph) {
+    const L = pathLen(p), a = p[0], b = p[p.length - 1];
+    const line = fitLine(p);
+    const lineTol = Math.max(2.2, 0.55 * sw, 0.022 * L) * scale;
+    if (line.maxd < lineTol * 1.6 && line.rms < lineTol * 0.6) return { t: 'L' };
+    const c = glyph ? null : fitCircle(p);
+    if (c && c.r < 4000) {
+      const sweep = L / c.r;
+      if (sweep > 0.45 && c.rms < Math.max(1.1, 0.014 * c.r) * scale && c.maxd < Math.max(2.8, 0.035 * c.r) * scale) {
+        // direction (sweep sign) from cross product
+        const mid = p[(p.length / 2) | 0]; const cr = (mid[0] - a[0]) * (b[1] - a[1]) - (mid[1] - a[1]) * (b[0] - a[0]);
+        return { t: 'A', cx: c.cx, cy: c.cy, r: c.r, mid: mid.slice() };
+      }
+    }
+    const bz = fitBeziers(p, Math.max(1.5, 0.45 * sw) * scale);
+    return { t: 'C', beziers: bz };
+  }
+
+  // analyse a chain of centre-line points → element(s)
+  function analyseStroke(chain, sw, opts) {
+    const scale = opts.tolScale || 1;
+    const step = Math.max(1, Math.min(2, sw / 3));
+    let p = resample(chain.pts, step, chain.closed);
+    if (p.length < 3) return null;
+    p = smooth(p, Math.max(1, Math.round(sw / 2 / step)), chain.closed, 2);
+    const L = pathLen(p);
+    if (chain.closed) {
+      const c = fitCircle(p);
+      if (c && c.rms < Math.max(1.4, 0.045 * c.r) * scale && c.maxd < Math.max(3, 0.12 * c.r) * scale)
+        return { shape: 'circle', cx: c.cx, cy: c.cy, r: c.r };
+      const corners = findCorners(p, step, sw, true);
+      if (corners.length < 2) {
+        const e = fitEllipse(p);
+        if (e.rms < Math.max(1.6, 0.04 * Math.min(e.rx, e.ry)) * scale * 1.3 && e.maxd < Math.max(4, 0.12 * Math.min(e.rx, e.ry)) * scale) {
+          let rot = e.rot; const deg = ((rot * 180) / PI + 360) % 180;
+          if (deg < 5 || deg > 175) rot = 0; else if (abs(deg - 90) < 5) rot = PI / 2;
+          return { shape: 'ellipse', cx: e.cx, cy: e.cy, rx: e.rx, ry: e.ry, rot };
+        }
+      }
+      return piecewise(p, corners, true, sw, scale, step);
+    }
+    const corners = findCorners(p, step, sw, false);
+    return piecewise(p, corners, false, sw, scale, step);
+  }
+
+  // corner indices → path {verts, segs, closed}
+  function piecewise(p, corners, closed, sw, scale, step, glyph) {
+    const n = p.length; let idx;
+    if (closed) { if (!corners.length) { const c = fitCircle(p); return { shape: 'path', verts: [p[0]], segs: [{ t: 'C', beziers: fitBeziers(p.concat([p[0]]), Math.max(1.5, 0.45 * sw) * scale) }], closed: true }; } idx = corners.slice(); }
+    else idx = [0].concat(corners, [n - 1]);
+    const pieces = [];
+    const cnt = closed ? idx.length : idx.length - 1;
+    for (let s = 0; s < cnt; s++) {
+      const i0 = idx[s], i1 = closed ? idx[(s + 1) % idx.length] : idx[s + 1];
+      const seg = []; let i = i0; for (;;) { seg.push(p[i]); if (i === i1) break; i = (i + 1) % n; if (seg.length > n + 1) break; }
+      pieces.push(seg);
+    }
+    let verts = idx.map((i) => p[i].slice());
+    let segs = pieces.map((seg) => classifyPiece(seg, sw, scale, glyph));
+    if (!glyph) {
+      // (1) drop mild corners between two curved pieces → one smooth curve
+      for (let v = 0; v < idx.length; v++) {
+        const prev = closed ? (v - 1 + segs.length) % segs.length : v - 1;
+        if (prev < 0 || v >= segs.length || prev === v) continue;
+        if (segs[prev].t === 'L' || segs[v].t === 'L') continue;
+        const i = idx[v], kk = Math.max(3, Math.round((3 * sw) / step));
+        const t = turnAt(p, i, Math.min(kk, Math.floor(pieces[v].length / 2), Math.floor(pieces[prev].length / 2)) || 1, closed);
+        if (t < (40 * PI) / 180) {
+          const nc = corners.filter((c) => c !== i);
+          if (nc.length !== corners.length) return piecewise(p, nc, closed, sw, scale, step, glyph);
+        }
+      }
+      // (2) curved piece that is really 2–3 straight strokes (wobbly hand-drawn polyline)
+      const nv = [verts[0]], ns = [], np = [];
+      for (let k = 0; k < segs.length; k++) {
+        const seg = pieces[k]; let repl = null;
+        if (segs[k].t === 'C' && seg.length > 8) {
+          const lt = Math.max(2.2, 0.55 * sw);
+          const d = dp(seg, lt * 1.4);
+          if (d.length >= 3 && d.length <= 4) {
+            const idxs = d.map((q) => seg.indexOf(q));
+            const subs = []; let ok = true;
+            for (let j = 0; j < d.length - 1; j++) { const sp = seg.slice(idxs[j], idxs[j + 1] + 1); const L = fitLine(sp); if (L.maxd > Math.max(lt * 1.6, 0.03 * pathLen(sp)) || pathLen(sp) < 3 * sw) ok = false; subs.push(sp); }
+            for (let j = 1; j < d.length - 1 && ok; j++) if (abs(angDiff(angOf(sub(d[j + 1], d[j])), angOf(sub(d[j], d[j - 1])))) < 0.3) ok = false;
+            if (ok) repl = subs;
+          }
+        }
+        if (repl) { repl.forEach((sp, j) => { if (j > 0) nv.push(sp[0].slice()); ns.push({ t: 'L' }); np.push(sp); }); }
+        else { ns.push(segs[k]); np.push(seg); }
+        if (k < segs.length - 1 || !closed) nv.push(verts[(k + 1) % verts.length]);
+      }
+      if (ns.length !== segs.length) { verts = closed ? nv.slice(0, ns.length) : nv; segs = ns; pieces.length = 0; pieces.push(...np); }
+    }
+    // refine vertices: where two lines meet → intersection
+    const lineFits = pieces.map((seg, k) => (segs[k].t === 'L' ? fitLine(seg) : null));
+    const vcount = verts.length;
+    for (let v = 0; v < vcount; v++) {
+      const prev = closed ? (v - 1 + segs.length) % segs.length : v - 1, next = v;
+      if (prev < 0 || next >= segs.length) { // open endpoints: project onto own line
+        const k = prev < 0 ? next : prev; if (lineFits[k]) verts[v] = projOnLine(lineFits[k], verts[v]);
+        continue;
+      }
+      if (lineFits[prev] && lineFits[next]) {
+        const X = intersect(lineFits[prev], lineFits[next]);
+        if (X && dist(X, verts[v]) < (glyph ? 2.5 : Math.max(12, 4 * sw))) verts[v] = X;
+      } else if (lineFits[prev]) verts[v] = projOnLine(lineFits[prev], verts[v]);
+      else if (lineFits[next]) verts[v] = projOnLine(lineFits[next], verts[v]);
+    }
+    // re-anchor bezier ends to vertices
+    segs.forEach((s, k) => { if (s.t === 'C' && s.beziers.length) { const a = verts[k], b = verts[(k + 1) % verts.length]; s.beziers[0][0] = a; s.beziers[s.beziers.length - 1][3] = b; } });
+    const allLines = segs.every((s) => s.t === 'L');
+    let shape = 'path';
+    if (allLines) shape = closed ? (verts.length === 3 ? 'triangle' : verts.length === 4 ? 'quad' : 'polygon') : verts.length === 2 ? 'line' : 'polyline';
+    else if (!closed && segs.length === 1 && segs[0].t === 'A') shape = 'arc';
+    else if (!closed && segs.length === 1) shape = 'curve';
+    return { shape, verts, segs, closed };
+  }
+  function intersect(L1, L2) {
+    const det = L1.dx * L2.dy - L1.dy * L2.dx; if (abs(det) < 0.08) return null;
+    const t = ((L2.mx - L1.mx) * L2.dy - (L2.my - L1.my) * L2.dx) / det;
+    return [L1.mx + t * L1.dx, L1.my + t * L1.dy];
+  }
+  function intersectPts(a1, a2, b1, b2) {
+    const d1 = sub(a2, a1), d2 = sub(b2, b1), det = d1[0] * d2[1] - d1[1] * d2[0];
+    if (abs(det) < 1e-9) return null;
+    const t = ((b1[0] - a1[0]) * d2[1] - (b1[1] - a1[1]) * d2[0]) / det;
+    return [a1[0] + t * d1[0], a1[1] + t * d1[1]];
+  }
+
+  // ------------------------------------------------- 6. outlines (filled regions / glyphs)
+  // trace pixel-edge boundaries; inside on the left. returns loops of lattice points
+  function traceOutlines(bm) {
+    const { m, w, h } = bm; const at = (x, y) => (x >= 0 && y >= 0 && x < w && y < h ? m[y * w + x] : 0);
+    // directed edges stored by start vertex; vertex id = y*(w+1)+x
+    const W1 = w + 1; const out = new Map();
+    const add = (x0, y0, x1, y1) => { const k = y0 * W1 + x0; if (!out.has(k)) out.set(k, []); out.get(k).push([x1, y1]); };
+    for (let y = 0; y <= h; y++) for (let x = 0; x <= w; x++) {
+      // horizontal edge between pixel (x,y-1) above and (x,y) below, spanning x..x+1
+      if (x < w) { const a = at(x, y - 1), b = at(x, y); if (b && !a) add(x + 1, y, x, y); else if (a && !b) add(x, y, x + 1, y); }
+      if (y < h) { const l = at(x - 1, y), r = at(x, y); if (r && !l) add(x, y, x, y + 1); else if (l && !r) add(x, y + 1, x, y); }
+    }
+    const loops = [];
+    for (const [k, list] of out) {
+      while (list.length) {
+        const sx = k % W1, sy = (k / W1) | 0; const loop = [[sx, sy]];
+        let [cx, cy] = list.pop(); let px = sx, py = sy;
+        for (let guard = 0; guard < 4 * w * h; guard++) {
+          if (cx === sx && cy === sy) break;
+          loop.push([cx, cy]);
+          const L = out.get(cy * W1 + cx); if (!L || !L.length) break;
+          let pick = 0;
+          if (L.length > 1) { // ambiguous: prefer right turn (keeps diagonal pixels separate)
+            const din = [cx - px, cy - py];
+            let best = -9; L.forEach((q, i) => { const dq = [q[0] - cx, q[1] - cy]; const cr = din[0] * dq[1] - din[1] * dq[0]; const sc = cr > 0 ? 2 : cr === 0 ? 1 : 0; if (sc > best) { best = sc; pick = i; } });
+          }
+          const nx = L.splice(pick, 1)[0]; px = cx; py = cy; cx = nx[0]; cy = nx[1];
+        }
+        if (loop.length >= 4) loops.push(loop);
+      }
+    }
+    return loops;
+  }
+  function dp(pts, eps) {
+    if (pts.length < 3) return pts.slice();
+    let md = 0, mi = 0; const a = pts[0], b = pts[pts.length - 1];
+    for (let i = 1; i < pts.length - 1; i++) { const pr = projSeg(pts[i], a, b) || { d: dist(pts[i], a) }; if (pr.d > md) { md = pr.d; mi = i; } }
+    if (md <= eps) return [a, b];
+    return dp(pts.slice(0, mi + 1), eps).slice(0, -1).concat(dp(pts.slice(mi), eps));
+  }
+  function dpClosed(loop, eps) { // split at farthest point from start
+    let fi = 0; for (let i = 0; i < loop.length; i++) if (dist(loop[i], loop[0]) > dist(loop[fi], loop[0])) fi = i;
+    const A = dp(loop.slice(0, fi + 1), eps), B = dp(loop.slice(fi).concat([loop[0]]), eps);
+    return A.slice(0, -1).concat(B.slice(0, -1));
+  }
+  function loopArea(l) { let a = 0; for (let i = 0; i < l.length; i++) { const p = l[i], q = l[(i + 1) % l.length]; a += p[0] * q[1] - q[0] * p[1]; } return a / 2; }
+
+  function analyseOutline(loop, sw, opts, isGlyph) {
+    const scale = opts.tolScale || 1;
+    const step = 1;
+    let p = resample(loop.concat([loop[0]]), step, true);
+    if (p.length < 6) return null;
+    p = smooth(p, 1, true, isGlyph ? 1 : 2);
+    const area = abs(loopArea(p));
+    const c = fitCircle(p);
+    if (c && c.rms < Math.max(0.9, 0.025 * c.r) * scale && c.maxd < Math.max(2.2, 0.07 * c.r) * scale) return { shape: 'circle', cx: c.cx, cy: c.cy, r: c.r, area };
+    const ew = isGlyph ? 1.2 : 2.2;
+    const corners = findCorners(p, step, ew, true, isGlyph ? 40 : 30);
+    if (!isGlyph && corners.length < 2) {
+      const e = fitEllipse(p);
+      if (e.rms < Math.max(1, 0.03 * Math.min(e.rx, e.ry)) * scale && e.maxd < Math.max(2.5, 0.08 * Math.min(e.rx, e.ry)) * scale) return { shape: 'ellipse', cx: e.cx, cy: e.cy, rx: e.rx, ry: e.ry, rot: e.rot, area };
+    }
+    const r = piecewise(p, corners, true, ew, isGlyph ? 0.6 * scale : scale, step, isGlyph);
+    if (r.verts && r.verts.length < 3) { // thin/tiny loop: fall back to a simplified polygon of the raw outline
+      const poly = dpClosed(loop, 0.75);
+      if (poly.length >= 3) return { shape: 'polygon', verts: poly, segs: poly.map(() => ({ t: 'L' })), closed: true, area };
+    }
+    r.area = area; return r;
+  }
+
+  // ------------------------------------------------- 7. beautify (global)
+  function snapAngle(theta, opts) {
+    const deg = ((theta * 180) / PI) % 180; const d = deg < 0 ? deg + 180 : deg;
+    const targets = [[0, 6], [90, 6], [180, 6], [45, 3.5], [135, 3.5], [30, 2.5], [60, 2.5], [120, 2.5], [150, 2.5]];
+    for (const [t, tol] of targets) if (abs(d - t) < tol * (opts.snapStrength || 1)) return (t * PI) / 180 * (theta < 0 && false ? -1 : 1);
+    return null;
+  }
+
+  function beautify(els, sw, opts) {
+    const weldTol = Math.max(7, 2.6 * sw) * (opts.snapStrength || 1);
+    // (a) angle snap for straight lines + rectangles/regular shapes
+    for (const e of els) {
+      if (e.shape === 'line') {
+        const [a, b] = e.verts; const th = angOf(sub(b, a)); const L = dist(a, b);
+        const s = snapAngle(th, opts);
+        if (s !== null) {
+          const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; let dir = [Math.cos(s), Math.sin(s)];
+          if (dir[0] * (b[0] - a[0]) + dir[1] * (b[1] - a[1]) < 0) dir = [-dir[0], -dir[1]];
+          e.verts = [[m[0] - (dir[0] * L) / 2, m[1] - (dir[1] * L) / 2], [m[0] + (dir[0] * L) / 2, m[1] + (dir[1] * L) / 2]];
+        }
+      }
+      if ((e.shape === 'quad') && e.segs.every((s) => s.t === 'L')) rectify(e, opts);
+      if (e.shape === 'triangle' && opts.regularize !== false) regularTriangle(e);
+      if (e.shape === 'ellipse' && abs(e.rx - e.ry) / Math.max(e.rx, e.ry) < 0.06) { const r = (e.rx + e.ry) / 2; Object.assign(e, { shape: 'circle', r }); }
+      if (e.shape === 'polyline' || e.shape === 'polygon') for (let k = 0; k < e.segs.length; k++) snapPolySeg(e, k, opts);
+    }
+    if (opts.weld === false) return;
+    // (b) collect open ends
+    const ends = [];
+    for (const e of els) {
+      if (e.kind !== 'stroke' || e.closed || !e.verts) continue;
+      ends.push({ e, i: 0, p: e.verts[0] }); ends.push({ e, i: e.verts.length - 1, p: e.verts[e.verts.length - 1] });
+    }
+    // cluster ends
+    const used = new Set();
+    for (let i = 0; i < ends.length; i++) {
+      if (used.has(i)) continue; const cl = [i];
+      for (let j = i + 1; j < ends.length; j++) if (!used.has(j) && cl.some((k) => dist(ends[k].p, ends[j].p) < weldTol)) cl.push(j);
+      if (cl.length < 2) continue; cl.forEach((k) => used.add(k));
+      const lines = cl.filter((k) => ends[k].e.shape === 'line' || adjacentIsLine(ends[k]));
+      let P = null;
+      if (lines.length >= 2) {
+        // intersection of two longest lines (most reliable directions)
+        const sorted = lines.map((k) => ({ k, L: adjLen(ends[k]) })).sort((x, y) => y.L - x.L);
+        const A = ends[sorted[0].k], B = ends[sorted[1].k];
+        const X = intersectPts(...adjSeg(A), ...adjSeg(B));
+        const cen = centroid(cl.map((k) => ends[k].p));
+        if (X && dist(X, cen) < weldTol * 2.2) P = X;
+      }
+      if (!P) P = centroid(cl.map((k) => ends[k].p));
+      for (const k of cl) moveEnd(ends[k], P);
+    }
+    // (c) T-junctions & touching circles: free ends near other shapes
+    for (let i = 0; i < ends.length; i++) {
+      if (used.has(i)) continue; const en = ends[i]; let best = null, bd = weldTol;
+      for (const o of els) {
+        if (o === en.e) continue;
+        if (o.shape === 'circle') {
+          const dc = dist(en.p, [o.cx, o.cy]);
+          if (dc < bd) { bd = dc; best = [o.cx, o.cy]; }
+          const dr = abs(dc - o.r); if (dr < bd) { bd = dr; const u = normalize(sub(en.p, [o.cx, o.cy])); best = lineCircleSnap(en, o) || [o.cx + u[0] * o.r, o.cy + u[1] * o.r]; }
+          continue;
+        }
+        if (!o.verts) continue;
+        const segCount = o.closed ? o.verts.length : o.verts.length - 1;
+        for (let s = 0; s < segCount; s++) {
+          if (o.segs && o.segs[s] && o.segs[s].t !== 'L') continue;
+          const a = o.verts[s], b = o.verts[(s + 1) % o.verts.length];
+          const pr = projSeg(en.p, a, b); if (!pr) continue;
+          if (pr.d < bd) {
+            bd = pr.d;
+            // keep direction of own line: intersect own line with target segment
+            let X = null; if (en.e.shape === 'line' || adjacentIsLine(en)) X = intersectPts(...adjSeg(en), a, b);
+            best = X && dist(X, en.p) < weldTol * 2 ? X : pr.q;
+            // perpendicular snap (altitudes, normals): if nearly perpendicular make it exact
+            if (en.e.shape === 'line') {
+              const other = en.e.verts[en.i === 0 ? 1 : 0];
+              const ang = abs(angDiff(angOf(sub(b, a)), angOf(sub(en.p, other))));
+              if (abs(ang - PI / 2) < (6 * PI) / 180) { const f = projSeg(other, a, b, true); if (f) best = f.q; }
+            }
+          }
+        }
+        for (const v of o.verts) { const d = dist(v, en.p); if (d < bd * 0.9) { bd = d; best = v.slice(); } }
+      }
+      if (best) moveEnd(en, best);
+    }
+  }
+  function lineCircleSnap(en, c) {
+    if (en.e.shape !== 'line') return null;
+    const [a, b] = adjSeg(en); const d = normalize(sub(b, a)); const f = sub(a, [c.cx, c.cy]);
+    const B = 2 * (f[0] * d[0] + f[1] * d[1]), C = f[0] * f[0] + f[1] * f[1] - c.r * c.r, disc = B * B - 4 * C;
+    if (disc < 0) return null; const s = Math.sqrt(disc);
+    const cands = [(-B - s) / 2, (-B + s) / 2].map((t) => [a[0] + t * d[0], a[1] + t * d[1]]);
+    return cands.sort((x, y) => dist(x, en.p) - dist(y, en.p))[0];
+  }
+  function centroid(ps) { let x = 0, y = 0; for (const p of ps) { x += p[0]; y += p[1]; } return [x / ps.length, y / ps.length]; }
+  function adjacentIsLine(en) { const e = en.e; if (!e.segs) return false; const k = en.i === 0 ? 0 : e.segs.length - 1; return e.segs[k] && e.segs[k].t === 'L'; }
+  function adjSeg(en) { const v = en.e.verts; return en.i === 0 ? [v[1], v[0]] : [v[v.length - 2], v[v.length - 1]]; }
+  function adjLen(en) { const [a, b] = adjSeg(en); return dist(a, b); }
+  function projSeg(p, a, b, infinite) {
+    const d = sub(b, a), L2 = d[0] * d[0] + d[1] * d[1]; if (L2 < 1e-9) return null;
+    let t = ((p[0] - a[0]) * d[0] + (p[1] - a[1]) * d[1]) / L2;
+    if (!infinite) { if (t < -0.02 || t > 1.02) return null; t = clamp(t, 0, 1); }
+    const q = [a[0] + t * d[0], a[1] + t * d[1]]; return { q, d: dist(p, q), t };
+  }
+  function moveEnd(en, P) {
+    const e = en.e, old = e.verts[en.i], dx = P[0] - old[0], dy = P[1] - old[1];
+    e.verts[en.i] = P.slice(); en.p = e.verts[en.i];
+    if (!e.segs) return;
+    const k = en.i === 0 ? 0 : e.segs.length - 1, s = e.segs[k];
+    if (s && s.t === 'C' && s.beziers.length) {
+      if (en.i === 0) { const b = s.beziers[0]; b[0] = P.slice(); b[1] = [b[1][0] + dx, b[1][1] + dy]; }
+      else { const b = s.beziers[s.beziers.length - 1]; b[3] = P.slice(); b[2] = [b[2][0] + dx, b[2][1] + dy]; }
+    }
+  }
+  function snapPolySeg(e, k, opts) {
+    // snap individual polyline/polygon edges to H/V when very close (keeps others)
+    const n = e.verts.length; const a = e.verts[k], b = e.verts[(k + 1) % n]; if (!b) return;
+    const th = angOf(sub(b, a)); const deg = (((th * 180) / PI) % 180 + 180) % 180;
+    if (deg < 3 || deg > 177) { const y = (a[1] + b[1]) / 2; a[1] = y; b[1] = y; }
+    else if (abs(deg - 90) < 3) { const x = (a[0] + b[0]) / 2; a[0] = x; b[0] = x; }
+  }
+  function rectify(e, opts) {
+    const v = e.verts; const ang = [];
+    for (let i = 0; i < 4; i++) { const p = v[(i + 3) % 4], q = v[i], r = v[(i + 1) % 4]; ang.push(abs(angDiff(angOf(sub(r, q)), angOf(sub(p, q))))); }
+    if (ang.every((a) => abs(a - PI / 2) < (14 * PI) / 180)) {
+      // best-fit rectangle: orientation from averaged edge angles (mod 90°)
+      let sx = 0, sy = 0;
+      for (let i = 0; i < 4; i++) { const t = angOf(sub(v[(i + 1) % 4], v[i])) * 4; const L = dist(v[i], v[(i + 1) % 4]); sx += Math.cos(t) * L; sy += Math.sin(t) * L; }
+      let th = Math.atan2(sy, sx) / 4; const sn = snapAngle(th, opts); if (sn !== null) th = sn % (PI / 2);
+      const c = centroid(v), u = [Math.cos(th), Math.sin(th)], w = [-u[1], u[0]];
+      const pu = v.map((p) => (p[0] - c[0]) * u[0] + (p[1] - c[1]) * u[1]), pw = v.map((p) => (p[0] - c[0]) * w[0] + (p[1] - c[1]) * w[1]);
+      const hu = (abs(pu[0]) + abs(pu[1]) + abs(pu[2]) + abs(pu[3])) / 4, hw = (abs(pw[0]) + abs(pw[1]) + abs(pw[2]) + abs(pw[3])) / 4;
+      e.verts = v.map((p, i) => { const su = Math.sign(pu[i]) || 1, sw2 = Math.sign(pw[i]) || 1; return [c[0] + su * hu * u[0] + sw2 * hw * w[0], c[1] + su * hu * u[1] + sw2 * hw * w[1]]; });
+      e.shape = abs(hu - hw) / Math.max(hu, hw) < 0.04 ? 'square' : 'rect'; e.rot = th;
+      if (e.shape === 'square') { const s = (hu + hw) / 2; e.verts = e.verts.map((p, i) => { const su = Math.sign(pu[i]) || 1, sw2 = Math.sign(pw[i]) || 1; return [c[0] + su * s * u[0] + sw2 * s * w[0], c[1] + su * s * u[1] + sw2 * s * w[1]]; }); }
+    } else {
+      for (let k = 0; k < 4; k++) snapPolySeg(e, k, opts);
+    }
+  }
+  function regularTriangle(e) {
+    const v = e.verts, L = [dist(v[0], v[1]), dist(v[1], v[2]), dist(v[2], v[0])];
+    const mx = Math.max(...L), mn = Math.min(...L);
+    if ((mx - mn) / mx < 0.05) { // equilateral
+      const c = centroid(v), R = (L[0] + L[1] + L[2]) / 3 / Math.sqrt(3); const a0 = angOf(sub(v[0], c));
+      let base = a0; const sn = snapAngle(a0 + PI / 2, {}); if (sn !== null) base = sn - PI / 2;
+      e.verts = [0, 1, 2].map((i) => [c[0] + R * Math.cos(base + (i * 2 * PI) / 3 * Math.sign(loopArea(v) || 1)), c[1] + R * Math.sin(base + (i * 2 * PI) / 3 * Math.sign(loopArea(v) || 1))]);
+      e.shape = 'triangle'; e.equilateral = true; return;
+    }
+    // horizontal base snap
+    for (let i = 0; i < 3; i++) { const a = v[i], b = v[(i + 1) % 3]; const deg = abs(((angOf(sub(b, a)) * 180) / PI) % 180); if (deg < 4 || deg > 176) { const y = (a[1] + b[1]) / 2; a[1] = b[1] = y; } else if (abs(deg - 90) < 4) { const x = (a[0] + b[0]) / 2; a[0] = b[0] = x; } }
+  }
+
+
+  function elemLen(e) { if (!e.verts) return 0; let L = 0; for (let i = 1; i < e.verts.length; i++) L += dist(e.verts[i - 1], e.verts[i]); return L; }
+  function splitHairpins(els, sw) {
+    const barbMax = Math.max(12 * sw, 50), out = [];
+    for (const e of els) {
+      if (e.kind !== 'stroke' || !e.verts || e.closed || e.verts.length < 3 || !e.segs.every((s) => s.t === 'L')) { out.push(e); continue; }
+      let v = e.verts; const pieces = [];
+      const turnSharp = (a, b, c) => abs(angDiff(angOf(sub(a, b)), angOf(sub(c, b)))) < 0.9;
+      // first and last pieces only
+      if (turnSharp(v[0], v[1], v[2]) && dist(v[0], v[1]) < barbMax) { pieces.push([v[0], v[1]]); v = v.slice(1); }
+      if (v.length >= 3 && turnSharp(v[v.length - 3], v[v.length - 2], v[v.length - 1]) && dist(v[v.length - 2], v[v.length - 1]) < barbMax) { pieces.push([v[v.length - 2], v[v.length - 1]]); v = v.slice(0, -1); }
+      if (!pieces.length) { out.push(e); continue; }
+      const main = Object.assign({}, e, { verts: v.map((p) => p.slice()), segs: v.slice(1).map(() => ({ t: 'L' })) }); main.shape = v.length === 2 ? 'line' : 'polyline';
+      out.push(main);
+      for (const p of pieces) out.push(Object.assign({}, e, { verts: p.map((q) => q.slice()), segs: [{ t: 'L' }], shape: 'line', arrows: undefined }));
+    }
+    return out;
+  }
+  function detectArrowsGeometric(els, sw, mask, w, h) {
+    const barbMax = Math.max(12 * sw, 50), near = 2.8 * sw + 4;
+    const remove = new Set();
+    const inkAt = (x, y) => { let c = 0, t = 0; const r = Math.max(1, Math.round(sw * 0.6)); for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const xx = Math.round(x + dx), yy = Math.round(y + dy); if (xx >= 0 && yy >= 0 && xx < w && yy < h) { t++; c += mask[yy * w + xx]; } } return t ? c / t : 0; };
+    const cands = els.filter((e) => e.kind === 'stroke' && e.verts && !e.closed && elemLen(e) < barbMax && e.segs.every((s) => s.t === 'L'));
+    for (const E of els) {
+      if (E.kind !== 'stroke' || !E.verts || E.closed || remove.has(E)) continue;
+      const EL = elemLen(E); if (EL < 2.2 * barbMax * 0.5) continue;
+      for (const i of [0, E.verts.length - 1]) {
+        if (E.arrows && E.arrows[i === 0 ? 'start' : 'end']) continue;
+        const P = E.verts[i], inner = E.verts[i === 0 ? 1 : E.verts.length - 2];
+        // direction pointing back into the shaft (use bezier control if curve)
+        let back = normalize(sub(inner, P));
+        const sg = E.segs[i === 0 ? 0 : E.segs.length - 1];
+        if (sg.t === 'C' && sg.beziers.length) { const b = i === 0 ? sg.beziers[0] : sg.beziers[sg.beziers.length - 1]; back = normalize(sub(i === 0 ? b[1] : b[2], P)); }
+        const left = [], right = []; let tip = P.slice(), tipT = 0;
+        for (const c of cands) {
+          if (c === E || remove.has(c)) continue;
+          const v = c.verts, a = v[0], b = v[v.length - 1];
+          const da = dist(a, P), db = dist(b, P); const nearEnd = da < db ? a : b, farEnd = da < db ? b : a;
+          if (Math.min(da, db) > near) continue;
+          const d = sub(farEnd, P), L = hypot(d[0], d[1]); if (L < 1.5 * sw) continue;
+          if (els.some((o) => o !== c && o !== E && o.verts && o.verts.some((q) => dist(q, farEnd) < near))) continue; // far end must be free
+          const ang = angDiff(angOf(d), angOf(back));
+          if (abs(ang) < 0.18 || abs(ang) > 1.3) continue;
+          (ang > 0 ? left : right).push({ c, L: L * Math.cos(ang), spread: abs(ang) });
+          for (const q of v) { const t = -((q[0] - P[0]) * back[0] + (q[1] - P[1]) * back[1]); if (t > tipT && dist(q, P) < near * 1.5) { tipT = t; tip = q.slice(); } }
+        }
+        if (!left.length && !right.length) continue;
+        if (!left.length || !right.length) { // one barb visible: check for mirrored ink on the other side
+          const one = (left[0] || right[0]); const fe = one.c.verts.reduce((m, q) => (dist(q, P) > dist(m, P) ? q : m), one.c.verts[0]);
+          const rel = sub(fe, P), along = rel[0] * back[0] + rel[1] * back[1], perp = [rel[0] - along * back[0], rel[1] - along * back[1]];
+          let hits = 0; for (let t = 0.35; t <= 1.0001; t += 0.13) { const q = [P[0] + (along * back[0] - perp[0]) * t, P[1] + (along * back[1] - perp[1]) * t]; if (inkAt(q[0], q[1]) > 0.3) hits++; }
+          if (hits < 3) continue;
+          if (!left.length) left.push(Object.assign({}, one, { c: null })); else right.push(Object.assign({}, one, { c: null }));
+        }
+        const l = left.sort((x, y) => y.L - x.L)[0], r = right.sort((x, y) => y.L - x.L)[0];
+        if (l.c) remove.add(l.c); if (r.c) remove.add(r.c);
+        E.arrows = E.arrows || {}; E.arrows[i === 0 ? 'start' : 'end'] = { size: (l.L + r.L) / 2 + tipT, spread: (l.spread + r.spread) / 2 };
+        if (tipT > 0) { const fw = [-back[0], -back[1]]; moveEnd({ e: E, i, p: P }, [P[0] + fw[0] * tipT, P[1] + fw[1] * tipT]); }
+      }
+    }
+    return els.filter((e) => !remove.has(e));
+  }
+  // join collinear line pieces of the same colour separated by a small gap or by crossing ink of another colour
+  function bridgeGaps(els, sw, mask, w, h) {
+    let changed = true, guard = 0;
+    while (changed && guard++ < 50) {
+      changed = false;
+      const lines = els.filter((e) => e.kind === 'stroke' && e.shape === 'line' && !e.dash);
+      outer: for (let i = 0; i < lines.length; i++) for (let j = i + 1; j < lines.length; j++) {
+        const A = lines[i], B = lines[j]; if (A.color !== B.color) continue;
+        const ta = angOf(sub(A.verts[1], A.verts[0])), tb = angOf(sub(B.verts[1], B.verts[0]));
+        if (abs(Math.sin(ta - tb)) > 0.12) continue;
+        let best = null;
+        for (const ia of [0, 1]) for (const ib of [0, 1]) { const d = dist(A.verts[ia], B.verts[ib]); if (!best || d < best[0]) best = [d, ia, ib]; }
+        const [gap, ia, ib] = best; if (gap > Math.max(6 * sw, 30)) continue;
+        const pA = A.verts[1 - ia], pB = B.verts[1 - ib];
+        const LF = fitLine([A.verts[0], A.verts[1], B.verts[0], B.verts[1]]);
+        if (LF.maxd > Math.max(4, 1.5 * sw)) continue;
+        // gap must be (mostly) inked or tiny
+        let ink = 0, tot = 0; const a = A.verts[ia], b = B.verts[ib];
+        for (let t = 0; t <= 1; t += 1 / Math.max(2, gap)) { const x = Math.round(a[0] + (b[0] - a[0]) * t), y = Math.round(a[1] + (b[1] - a[1]) * t); if (x >= 0 && y >= 0 && x < w && y < h) { tot++; ink += mask[y * w + x]; } }
+        if (!(gap < 1.6 * sw || ink / Math.max(1, tot) > 0.55)) continue;
+        A.verts = [pA.slice(), pB.slice()]; A.segs = [{ t: 'L' }];
+        if (B.arrows) { A.arrows = Object.assign({}, A.arrows || {}); for (const k in B.arrows) A.arrows[ib === 0 ? 'end' : 'end'] = B.arrows[k]; }
+        if (A.arrows && ia === 0 && A.arrows.start) { /* start arrow belonged to the end we joined → drop */ delete A.arrows.start; }
+        els = els.filter((e) => e !== B); changed = true; break outer;
+      }
+    }
+    return els;
+  }
+  // dashed line detection: many short collinear segments
+  function mergeDashes(els, sw) {
+    const lines = els.filter((e) => e.kind === 'stroke' && e.shape === 'line');
+    const short = lines.filter((e) => dist(e.verts[0], e.verts[1]) < Math.max(40, 14 * sw));
+    const parent = new Map(short.map((e) => [e, e]));
+    const find = (x) => { while (parent.get(x) !== x) x = parent.get(x); return x; };
+    for (let i = 0; i < short.length; i++) for (let j = i + 1; j < short.length; j++) {
+      const A = short[i], B = short[j]; const ta = angOf(sub(A.verts[1], A.verts[0])), tb = angOf(sub(B.verts[1], B.verts[0]));
+      if (abs(Math.sin(ta - tb)) > 0.1) continue;
+      const la = dist(A.verts[0], A.verts[1]), lb = dist(B.verts[0], B.verts[1]);
+      const gap = Math.min(dist(A.verts[0], B.verts[0]), dist(A.verts[0], B.verts[1]), dist(A.verts[1], B.verts[0]), dist(A.verts[1], B.verts[1]));
+      if (gap > 2.5 * Math.max(la, lb) + 2 * sw) continue;
+      const pr = projSeg(B.verts[0], A.verts[0], A.verts[1], true); const pr2 = projSeg(B.verts[1], A.verts[0], A.verts[1], true);
+      if (pr.d > Math.max(3, sw) || pr2.d > Math.max(3, sw)) continue;
+      parent.set(find(A), find(B));
+    }
+    const groups = new Map(); for (const e of short) { const r = find(e); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(e); }
+    const remove = new Set(); const add = [];
+    for (const g of groups.values()) {
+      if (g.length < 3) continue;
+      const pts = g.flatMap((e) => e.verts); const L = fitLine(pts);
+      const ts = pts.map((p) => (p[0] - L.mx) * L.dx + (p[1] - L.my) * L.dy); const t0 = Math.min(...ts), t1 = Math.max(...ts);
+      const dash = g.reduce((s, e) => s + dist(e.verts[0], e.verts[1]), 0) / g.length;
+      const gapAvg = Math.max(sw, (t1 - t0 - dash * g.length) / Math.max(1, g.length - 1));
+      let a = [L.mx + t0 * L.dx, L.my + t0 * L.dy], b = [L.mx + t1 * L.dx, L.my + t1 * L.dy];
+      const s = snapAngle(angOf(sub(b, a)), {}); if (s !== null) { const m = centroid([a, b]), Lh = dist(a, b) / 2; let d = [Math.cos(s), Math.sin(s)]; a = [m[0] - d[0] * Lh, m[1] - d[1] * Lh]; b = [m[0] + d[0] * Lh, m[1] + d[1] * Lh]; }
+      g.forEach((e) => remove.add(e));
+      add.push(Object.assign({}, g[0], { verts: [a, b], segs: [{ t: 'L' }], dash: [dash, gapAvg] }));
+    }
+    return els.filter((e) => !remove.has(e)).concat(add);
+  }
+
+
+  // ------------------------------------------------- 0. smart pre-processing (perspective, deskew)
+  function dominantSkew(els) {
+    const segs = [];
+    for (const e of els) {
+      if (e.kind !== 'stroke' || !e.verts || !e.segs) continue;
+      const n = e.closed ? e.verts.length : e.verts.length - 1;
+      for (let k = 0; k < n; k++) if (e.segs[k] && e.segs[k].t === 'L') { const a = e.verts[k], b = e.verts[(k + 1) % e.verts.length], L = dist(a, b); if (L < 25) continue; let deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / PI; deg = ((deg % 90) + 135) % 90 - 45; segs.push({ deg, L }); }
+    }
+    const total = segs.reduce((s2, q) => s2 + q.L, 0); if (total < 300 || segs.length < 3) return null;
+    let best = null;
+    for (let t = -15; t <= 15; t += 0.25) {
+      const inWin = segs.filter((q) => abs(q.deg - t) <= 1.5); const wgt = inWin.reduce((s2, q) => s2 + q.L, 0);
+      if (!best || wgt > best.w) best = { t, w: wgt, n: inWin.length, list: inWin };
+    }
+    const zero = segs.filter((q) => abs(q.deg) <= 0.6).reduce((s2, q) => s2 + q.L, 0);
+    if (!best || best.n < 2 || best.w / total < 0.45 || best.w < 1.5 * zero) return null;
+    const th = best.list.reduce((s2, q) => s2 + q.deg * q.L, 0) / best.w;
+    return abs(th) < 0.8 ? null : th;
+  }
+  function paperColor(rgba, w, h) {
+    const v = [[], [], []];
+    for (let i = 0; i < w * h; i += 13) { const g = rgba[i * 4] + rgba[i * 4 + 1] + rgba[i * 4 + 2]; v[0].push([g, i]); }
+    v[0].sort((a, b) => a[0] - b[0]); const i = v[0][Math.floor(v[0].length * 0.85)][1];
+    return [rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 2]];
+  }
+  function sampleBilinear(rgba, w, h, x, y, out, o, fill) {
+    if (x < 0 || y < 0 || x > w - 1 || y > h - 1) { out[o] = fill[0]; out[o + 1] = fill[1]; out[o + 2] = fill[2]; out[o + 3] = 255; return; }
+    const x0 = Math.floor(x), y0 = Math.floor(y), x1 = Math.min(w - 1, x0 + 1), y1 = Math.min(h - 1, y0 + 1), fx = x - x0, fy = y - y0;
+    for (let c = 0; c < 3; c++) {
+      const a = rgba[(y0 * w + x0) * 4 + c], b = rgba[(y0 * w + x1) * 4 + c], cc = rgba[(y1 * w + x0) * 4 + c], d = rgba[(y1 * w + x1) * 4 + c];
+      out[o + c] = (a * (1 - fx) + b * fx) * (1 - fy) + (cc * (1 - fx) + d * fx) * fy;
+    }
+    out[o + 3] = 255;
+  }
+  function rotateImage(rgba, w, h, deg) {
+    const t = (deg * PI) / 180, c = Math.cos(t), s2 = Math.sin(t);
+    const W = Math.round(abs(w * c) + abs(h * s2)), H = Math.round(abs(w * s2) + abs(h * c));
+    const out = new Uint8ClampedArray(W * H * 4), fill = paperColor(rgba, w, h);
+    const cx = w / 2, cy = h / 2, CX = W / 2, CY = H / 2;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const dx = x - CX, dy = y - CY; // inverse rotation
+      sampleBilinear(rgba, w, h, cx + dx * c + dy * s2, cy - dx * s2 + dy * c, out, (y * W + x) * 4, fill);
+    }
+    return { rgba: out, w: W, h: H };
+  }
+  function findPaper(rgba, w, h) {
+    const k = Math.min(1, 420 / Math.max(w, h)), sw = Math.max(8, Math.round(w * k)), sh = Math.max(8, Math.round(h * k));
+    const g = new Uint8Array(sw * sh), hist = new Uint32Array(256);
+    for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
+      const i = (Math.min(h - 1, Math.round(y / k)) * w + Math.min(w - 1, Math.round(x / k))) * 4;
+      const v = (rgba[i] * 0.299 + rgba[i + 1] * 0.587 + rgba[i + 2] * 0.114) | 0; g[y * sw + x] = v; hist[v]++;
+    }
+    const t = otsu(hist, sw * sh);
+    // paper must be clearly brighter than surroundings
+    let mb = 0, nb = 0, md = 0, nd = 0; for (let i = 0; i < sw * sh; i++) { if (g[i] > t) { mb += g[i]; nb++; } else { md += g[i]; nd++; } }
+    if (!nb || !nd || mb / nb - md / nd < 45) return null;
+    const m = new Uint8Array(sw * sh); for (let i = 0; i < sw * sh; i++) m[i] = g[i] > t ? 1 : 0;
+    // close small dark holes (the drawing itself) so the paper is one blob
+    const { comps } = components4(m, sw, sh); if (!comps.length) return null;
+    const big = comps.reduce((a, b) => (b.area > a.area ? b : a));
+    const ratio = big.area / (sw * sh); if (ratio < 0.18 || ratio > 0.97) return null;
+    let TL = null, TR = null, BR = null, BL = null, vTL = 1e9, vTR = -1e9, vBR = -1e9, vBL = 1e9;
+    for (const p of big.pix) { const x = p % sw, y = (p / sw) | 0; if (x + y < vTL) { vTL = x + y; TL = [x, y]; } if (x + y > vBR) { vBR = x + y; BR = [x, y]; } if (x - y > vTR) { vTR = x - y; TR = [x, y]; } if (x - y < vBL) { vBL = x - y; BL = [x, y]; } }
+    const q = [TL, TR, BR, BL]; const qa = abs(loopArea(q));
+    // area of blob incl. holes ≈ bbox-filled area: compare with quad
+    const filled = (() => { const ff = new Uint8Array(sw * sh); for (const p of big.pix) ff[p] = 1; const inv = new Uint8Array(sw * sh); for (let i = 0; i < sw * sh; i++) inv[i] = ff[i] ? 0 : 1; const c2 = components4(inv, sw, sh).comps; let a = big.area; for (const c of c2) if (!(c.minx === 0 || c.miny === 0 || c.maxx === sw - 1 || c.maxy === sh - 1)) a += c.area; return a; })();
+    if (qa / filled < 0.88 || qa / filled > 1.1) return null;
+    const nearCorner = q.every((p, i) => dist(p, [[0, 0], [sw - 1, 0], [sw - 1, sh - 1], [0, sh - 1]][i]) < 0.03 * Math.max(sw, sh));
+    if (nearCorner) return null;
+    return q.map((p) => [p[0] / k, p[1] / k]);
+  }
+  function homography(src, dst) { // maps src[i] → dst[i]
+    const A = [], b = [];
+    for (let i = 0; i < 4; i++) { const [x, y] = src[i], [u, v] = dst[i]; A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v); }
+    const hh = solveLinear(A, b); return hh ? hh.concat([1]) : null;
+  }
+  function warpPaper(rgba, w, h, quad) {
+    const c = centroid(quad); const q = quad.map((p) => [p[0] + (c[0] - p[0]) * 0.012, p[1] + (c[1] - p[1]) * 0.012]);
+    let W = (dist(q[0], q[1]) + dist(q[3], q[2])) / 2, H = (dist(q[0], q[3]) + dist(q[1], q[2])) / 2;
+    const k = Math.min(1, 1800 / Math.max(W, H)); W = Math.round(W * k); H = Math.round(H * k);
+    const Hm = homography([[0, 0], [W, 0], [W, H], [0, H]], q); if (!Hm) return null;
+    const out = new Uint8ClampedArray(W * H * 4), fill = [255, 255, 255];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const zz = Hm[6] * x + Hm[7] * y + 1;
+      sampleBilinear(rgba, w, h, (Hm[0] * x + Hm[1] * y + Hm[2]) / zz, (Hm[3] * x + Hm[4] * y + Hm[5]) / zz, out, (y * W + x) * 4, fill);
+    }
+    return { rgba: out, w: W, h: H };
+  }
+  // full pipeline: perspective → deskew → vectorize. Returns {res, image, fixes}
+  function smartVectorize(rgba, w, h, opts) {
+    opts = opts || {}; const fixes = []; let img = { rgba, w, h };
+    if (opts.perspective !== false) {
+      const q = findPaper(rgba, w, h);
+      if (q) { const wp = warpPaper(rgba, w, h, q); if (wp) { img = wp; fixes.push('perspective'); } }
+    }
+    if (opts.deskew !== false) {
+      const r0 = vectorize(img.rgba, img.w, img.h, Object.assign({}, opts, { detectSkew: true }));
+      if (typeof r0.needDeskew === 'number') { img = rotateImage(img.rgba, img.w, img.h, -r0.needDeskew); fixes.push('deskew:' + r0.needDeskew.toFixed(1)); }
+      else { r0.fixes = fixes; return { res: r0, image: img, fixes }; }
+    }
+    const res = vectorize(img.rgba, img.w, img.h, opts);
+    if (res.faint) fixes.push('faint');
+    res.fixes = fixes;
+    return { res, image: img, fixes };
+  }
+
+  // ------------------------------------------------- 8. main
+  function rgbHex(c) { return '#' + c.map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join(''); }
+  function standardColor(c, opts) {
+    const mx = Math.max(...c), mn = Math.min(...c), lum = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+    if (mx - mn < 40 && opts.pureBlack !== false) return [0, 0, 0];
+    if (mx - mn < 30) return [Math.min(lum, 90), Math.min(lum, 90), Math.min(lum, 90)];
+    // colour: keep hue, make it a clear, saturated pen colour (faint scans become crisp)
+    let [r, g, b] = c.map((v) => v / 255); const M = Math.max(r, g, b), m = Math.min(r, g, b); let hh = 0; const dd = M - m;
+    if (dd) { if (M === r) hh = ((g - b) / dd) % 6; else if (M === g) hh = (b - r) / dd + 2; else hh = (r - g) / dd + 4; hh *= 60; if (hh < 0) hh += 360; }
+    let L = (M + m) / 2, S = dd / (1 - abs(2 * L - 1) || 1);
+    if (opts.vivid !== false) { S = Math.max(S, 0.65); L = clamp(L, 0.3, 0.5); if (hh > 40 && hh < 70) L = Math.max(L, 0.46); }
+    const C = (1 - abs(2 * L - 1)) * S, X2 = C * (1 - abs(((hh / 60) % 2) - 1)), m2 = L - C / 2;
+    const [r1, g1, b1] = hh < 60 ? [C, X2, 0] : hh < 120 ? [X2, C, 0] : hh < 180 ? [0, C, X2] : hh < 240 ? [0, X2, C] : hh < 300 ? [X2, 0, C] : [C, 0, X2];
+    return [(r1 + m2) * 255, (g1 + m2) * 255, (b1 + m2) * 255];
+  }
+
+  function vectorize(rgba, w, h, opts) {
+    opts = Object.assign({ sensitivity: 0, tolScale: 1, snapStrength: 1, uniformStroke: true, monochrome: false, minNoise: 0 }, opts || {});
+    const t0 = Date.now();
+    const norm = normalizeImage(rgba, w, h, opts);
+    const inkInfo = inkMask(norm, w, h, opts); const { mask, T } = inkInfo;
+    const layers = colorLayers(norm, mask, w * h, opts);
+    { // merge layers that standardise to (nearly) the same colour
+      const std = layers.centers.map((c) => standardColor(c, opts)); const canon = std.map((_, i) => i);
+      for (let i = 0; i < std.length; i++) for (let j = 0; j < i; j++) if (canon[j] === j && hypot(std[i][0] - std[j][0], std[i][1] - std[j][1], std[i][2] - std[j][2]) < 70) { canon[i] = j; break; }
+      if (canon.some((c, i) => c !== i)) {
+        const keep = [...new Set(canon)], remap = canon.map((c) => keep.indexOf(c));
+        for (let i = 0; i < w * h; i++) if (layers.labels[i] >= 0) layers.labels[i] = remap[layers.labels[i]];
+        layers.centers = keep.map((k) => layers.centers[k]);
+      }
+    }
+    const minArea = Math.max(6, Math.round(w * h * 0.000012)) + (opts.minNoise || 0);
+    const comps = [];
+    // per-layer components
+    for (let c = 0; c < layers.centers.length; c++) {
+      const lm = new Uint8Array(w * h); for (let i = 0; i < w * h; i++) if (layers.labels[i] === c) lm[i] = 1;
+      const cc = components(lm, w, h, minArea);
+      for (const k of cc.comps) { k.layer = c; comps.push(k); }
+    }
+    // measure stroke widths
+    const infos = [];
+    for (const c of comps) {
+      const bm = cropComp(c, w, 2);
+      const sw0 = 0; fillSmallHoles(bm, Math.max(4, Math.round(c.area * 0.002)));
+      const d = edt(bm); const sk = thin(bm);
+      const skv = []; let skN = 0; let maxD = 0;
+      for (let i = 0; i < sk.length; i++) { if (sk[i]) { skN++; skv.push(d[i]); } if (d[i] > maxD) maxD = d[i]; }
+      const width = 2 * median(skv) - 1;
+      let area = 0; for (let i = 0; i < bm.m.length; i++) area += bm.m[i];
+      infos.push({ c, bm, d, sk, skN, width: Math.max(1, width), maxD, area });
+    }
+    // global stroke width (length-weighted median of thin comps)
+    const ws = []; for (const f of infos) if (f.width < 25) for (let i = 0; i < f.skN; i += 4) ws.push(f.width);
+    const sw = clamp(median(ws) || 3, 1, 40);
+    const glyphMax = Math.max(18, Math.min(w, h) * 0.07, 10 * sw);
+    const els = [];
+    const colorOf = (c) => standardColor(layers.centers[c.layer], opts);
+    for (const f of infos) {
+      const c = f.c, bw = c.maxx - c.minx + 1, bh = c.maxy - c.miny + 1;
+      const color = rgbHex(colorOf(c));
+      const avgW = f.area / Math.max(1, f.skN);
+      const isFilled = f.maxD * 2 > Math.max(4.2 * sw, sw + 8) && avgW > 2.4 * sw;
+      const small = Math.max(bw, bh) < glyphMax;
+      if (avgW < 1.3 && layers.centers.length > 1 && f.width < 1.6 && Math.max(bw, bh) < 3 * glyphMax) continue; // antialias sliver
+      if (isFilled || small) {
+        // outline mode
+        const loops = traceOutlines(f.bm).filter((l) => abs(loopArea(l)) > 3);
+        loops.sort((a, b) => abs(loopArea(b)) - abs(loopArea(a)));
+        const parts = [];
+        for (const l of loops) {
+          const r = analyseOutline(l.map((p) => [p[0] + f.bm.ox, p[1] + f.bm.oy]), sw, opts, small && !isFilled);
+          if (r) parts.push(r);
+        }
+        if (!parts.length) continue;
+        if (parts.length === 1 && parts[0].shape !== 'path' && parts[0].shape !== 'polygon') {
+          els.push(Object.assign(parts[0], { kind: 'fill', color, glyph: small && !isFilled }));
+        } else if (small && !isFilled && parts.length >= 1 && isRing(parts, sw)) {
+          // hollow small circle like "O" or a node ring drawn as stroke
+          const o = parts[0]; els.push(Object.assign(o.shape === 'circle' ? o : parts[0], { kind: 'fill', color, glyph: true, holes: parts.slice(1) }));
+        } else {
+          els.push({ kind: 'fill', shape: 'compound', parts, color, glyph: small && !isFilled });
+        }
+        continue;
+      }
+      // stroke mode
+      const G = skeletonGraph(f.sk, f.bm.w, f.bm.h);
+      const { chains, arrowPts } = simplifyGraph(G, f.width);
+      const width = opts.uniformStroke && abs(f.width - sw) / sw < 0.45 ? sw : f.width;
+      const made = [];
+      for (const ch of chains) {
+        if (pathLen(ch.pts) < Math.max(3, 1.2 * f.width) && chains.length > 1) continue;
+        const pts = ch.pts.map((p) => [p[0] + f.bm.ox, p[1] + f.bm.oy]);
+        const r = analyseStroke({ pts, closed: ch.closed }, f.width, opts);
+        if (!r) continue;
+        Object.assign(r, { kind: 'stroke', color, width });
+        if (r.shape === 'circle' || r.shape === 'ellipse') r.closed = true;
+        made.push(r); els.push(r);
+      }
+      for (const a of arrowPts) {
+        const P = [a.x + f.bm.ox, a.y + f.bm.oy]; let best = null, bd = 3 * f.width + 6;
+        for (const e of made) { if (!e.verts || e.closed) continue; for (const i of [0, e.verts.length - 1]) { const d = dist(e.verts[i], P); if (d < bd) { bd = d; best = [e, i]; } } }
+        if (best) {
+          const [e, i] = best; e.arrows = e.arrows || {}; e.arrows[i === 0 ? 'start' : 'end'] = { size: a.size, spread: a.spread };
+          const T = [a.tip[0] + f.bm.ox, a.tip[1] + f.bm.oy];
+          if (e.shape === 'line') { // extend along line direction to the tip
+            const o = e.verts[i === 0 ? 1 : 0], d = normalize(sub(e.verts[i], o)); const t = (T[0] - o[0]) * d[0] + (T[1] - o[1]) * d[1];
+            if (t > 0) e.verts[i] = [o[0] + d[0] * t, o[1] + d[1] * t];
+          }
+        }
+      }
+    }
+    if (opts.detectSkew) {
+      const th = dominantSkew(els);
+      if (th !== null) return { needDeskew: th };
+    }
+    if (inkInfo.faint) for (const e of els) if (e.kind === 'stroke') e.width *= 0.72;
+    let out = detectArrowsGeometric(splitHairpins(els, sw).filter((e) => !(e.verts && !e.closed && elemLen(e) < Math.max(2, 0.8 * sw))), sw, mask, w, h);
+    out = bridgeGaps(out, sw, mask, w, h);
+    out = mergeDashes(out, sw);
+    beautify(out, sw, opts);
+    if (opts.uniformStroke) { // unify arrowheads
+      const sizes = []; out.forEach((e) => e.arrows && Object.values(e.arrows).forEach((a) => sizes.push(a.size)));
+      const ms = median(sizes); out.forEach((e) => e.arrows && Object.values(e.arrows).forEach((a) => { a.size = ms; a.spread = 0.42; }));
+    }
+    // order: fills first (big to small), then strokes, then glyphs
+    out.sort((a, b) => rank(a) - rank(b));
+    out.forEach((e, i) => (e.id = 'el' + i));
+    const stats = {};
+    out.forEach((e) => { const k = e.glyph ? 'text/symbol' : e.shape; stats[k] = (stats[k] || 0) + 1; });
+    return { faint: !!inkInfo.faint, width: w, height: h, strokeWidth: sw, elements: out, stats, colors: layers.centers.map((c) => rgbHex(standardColor(c, opts))), ms: Date.now() - t0, threshold: T };
+  }
+  function rank(e) { if (e.kind === 'fill' && !e.glyph) return 0 - (e.area || 0) * 1e-9; if (e.kind === 'stroke') return 1; return 2; }
+  function isRing(parts, sw) { return parts.length === 2 && parts[0].shape === 'circle' && parts[1].shape === 'circle'; }
+  function isStraight(f, sw) {
+    const pts = []; for (let i = 0; i < f.sk.length; i++) if (f.sk[i]) pts.push([i % f.bm.w, (i / f.bm.w) | 0]);
+    if (pts.length < 4) return false; const L = fitLine(pts); return L.maxd < Math.max(2, 0.6 * sw);
+  }
+
+  // ------------------------------------------------- 9. geometry → path commands
+  // returns list of subpaths [{cmds:[['M',x,y],['L',x,y],['C',x1,y1,x2,y2,x,y]...], closed}]
+  function arcToBeziers(cx, cy, r, a0, a1, P0, P1) {
+    let da = a1 - a0; const n = Math.max(1, Math.ceil(abs(da) / (PI / 2) - 1e-6)); const step = da / n; const out = [];
+    const k = (4 / 3) * Math.tan(step / 4);
+    for (let i = 0; i < n; i++) {
+      const s = a0 + i * step, e = s + step;
+      const p0 = i === 0 && P0 ? P0 : [cx + r * Math.cos(s), cy + r * Math.sin(s)];
+      const p3 = i === n - 1 && P1 ? P1 : [cx + r * Math.cos(e), cy + r * Math.sin(e)];
+      out.push(['C', p0[0] - k * r * Math.sin(s), p0[1] + k * r * Math.cos(s), p3[0] + k * r * Math.sin(e), p3[1] - k * r * Math.cos(e), p3[0], p3[1]]);
+    }
+    return out;
+  }
+  function ellipsePath(cx, cy, rx, ry, rot) {
+    const k = 0.5522847498, c = Math.cos(rot || 0), s = Math.sin(rot || 0);
+    const T = (x, y) => [cx + x * c - y * s, cy + x * s + y * c];
+    const P = [T(rx, 0), T(rx, k * ry), T(k * rx, ry), T(0, ry), T(-k * rx, ry), T(-rx, k * ry), T(-rx, 0), T(-rx, -k * ry), T(-k * rx, -ry), T(0, -ry), T(k * rx, -ry), T(rx, -k * ry)];
+    return { cmds: [['M', ...P[0]], ['C', ...P[1], ...P[2], ...P[3]], ['C', ...P[4], ...P[5], ...P[6]], ['C', ...P[7], ...P[8], ...P[9]], ['C', ...P[10], ...P[11], ...P[0]]], closed: true };
+  }
+  function shapeToSubpaths(e) {
+    if (e.shape === 'circle') return [ellipsePath(e.cx, e.cy, e.r, e.r, 0)].concat((e.holes || []).flatMap(shapeToSubpaths));
+    if (e.shape === 'ellipse') return [ellipsePath(e.cx, e.cy, e.rx, e.ry, e.rot)];
+    if (e.shape === 'compound') return e.parts.flatMap(shapeToSubpaths);
+    const v = e.verts, cmds = [['M', v[0][0], v[0][1]]];
+    const n = e.closed ? v.length : v.length - 1;
+    for (let k = 0; k < n; k++) {
+      const a = v[k], b = v[(k + 1) % v.length], s = (e.segs && e.segs[k]) || { t: 'L' };
+      if (s.t === 'L') cmds.push(['L', b[0], b[1]]);
+      else if (s.t === 'A') {
+        const a0 = Math.atan2(a[1] - s.cy, a[0] - s.cx); let a1 = Math.atan2(b[1] - s.cy, b[0] - s.cx);
+        const TW = 2 * PI, md = s.mid ? Math.atan2(s.mid[1] - s.cy, s.mid[0] - s.cx) : a0 + 0.1;
+        const pos = (((a1 - a0) % TW) + TW) % TW, mpos = (((md - a0) % TW) + TW) % TW;
+        const da = mpos <= pos ? pos : pos - TW; // go the way that passes through the midpoint
+        cmds.push(...arcToBeziers(s.cx, s.cy, s.r, a0, a0 + da, a, b));
+      } else if (s.t === 'C') for (const bz of s.beziers) cmds.push(['C', bz[1][0], bz[1][1], bz[2][0], bz[2][1], bz[3][0], bz[3][1]]);
+    }
+    return [{ cmds, closed: !!e.closed }];
+  }
+  function arrowHeads(e) {
+    if (!e.arrows || !e.verts) return [];
+    const res = []; const sub2 = shapeToSubpaths(e)[0].cmds;
+    for (const which of Object.keys(e.arrows)) {
+      const A = e.arrows[which]; const size = Math.max(A.size, 3 * (e.width || 2)), spread = A.spread || 0.42;
+      let tip, from;
+      if (which === 'end') { const last = sub2[sub2.length - 1]; tip = last.slice(-2); from = last[0] === 'C' ? [last[3], last[4]] : sub2.length > 1 ? sub2[sub2.length - 2].slice(-2) : sub2[0].slice(1); }
+      else { tip = sub2[0].slice(1); const f = sub2[1]; from = f[0] === 'C' ? [f[1], f[2]] : f.slice(-2); }
+      if (dist(tip, from) < 1e-6) continue;
+      const ang = angOf(sub(tip, from));
+      const p1 = [tip[0] - size * Math.cos(ang - spread), tip[1] - size * Math.sin(ang - spread)], p2 = [tip[0] - size * Math.cos(ang + spread), tip[1] - size * Math.sin(ang + spread)];
+      const back = [tip[0] - size * 0.78 * Math.cos(ang), tip[1] - size * 0.78 * Math.sin(ang)];
+      res.push({ cmds: [['M', ...tip], ['L', ...p1], ['L', ...back], ['L', ...p2]], closed: true, which });
+    }
+    return res;
+  }
+
+
+  // ------------------------------------------------- 10. labels (glyph groups) & text elements
+  function elementBBox(e) {
+    if (e.kind === 'text') return [e.x, e.y - e.size * 0.75, e.x + e.size * 0.6 * textLen(e.runs), e.y + e.size * 0.25];
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const sp of shapeToSubpaths(e)) for (const c of sp.cmds) for (let i = 1; i < c.length; i += 2) { x0 = Math.min(x0, c[i]); x1 = Math.max(x1, c[i]); y0 = Math.min(y0, c[i + 1]); y1 = Math.max(y1, c[i + 1]); }
+    return [x0, y0, x1, y1];
+  }
+  const textLen = (runs) => runs.reduce((s, r) => s + String(r.t || '').length * (r.sub || r.sup ? 0.7 : 1), 0);
+  function glyphGroups(res) {
+    const gl = res.elements.filter((e) => e.glyph).map((e) => ({ e, b: elementBBox(e) }));
+    const par = gl.map((_, i) => i); const find = (i) => { while (par[i] !== i) i = par[i] = par[par[i]]; return i; };
+    for (let i = 0; i < gl.length; i++) for (let j = i + 1; j < gl.length; j++) {
+      const a = gl[i].b, b = gl[j].b, ha = a[3] - a[1], hb = b[3] - b[1], H = Math.max(ha, hb);
+      const vov = Math.min(a[3], b[3]) - Math.max(a[1], b[1]);
+      const gap = Math.max(a[0], b[0]) - Math.min(a[2], b[2]);
+      if (vov > -0.25 * Math.min(ha, hb) && gap < 0.75 * H && Math.max(ha, hb) / Math.max(1, Math.min(ha, hb)) < 3.5) par[find(i)] = find(j);
+    }
+    const groups = new Map();
+    gl.forEach((g, i) => { const r = find(i); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(g); });
+    let k = 0; const out = [];
+    for (const list of groups.values()) {
+      const b = [Math.min(...list.map((g) => g.b[0])), Math.min(...list.map((g) => g.b[1])), Math.max(...list.map((g) => g.b[2])), Math.max(...list.map((g) => g.b[3]))];
+      out.push({ id: 'g' + ++k, bbox: b, members: list.map((g) => g.e.id) });
+    }
+    return out.sort((a, b) => a.bbox[1] - b.bbox[1] || a.bbox[0] - b.bbox[0]);
+  }
+  // build a text element that sits in a glyph group's box
+  function makeTextElement(group, runs, color, italic) {
+    const ASC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZbdfhklt0123456789()[]{}/|\\!?%&#$@ΔΣΠΩΘΦΨΛΓ∫√∑', DESC = 'gjpqyβμ(),;[]{}';
+    let asc = 0.52, desc = 0;
+    for (const r of runs) for (const ch of String(r.t || '')) {
+      const a = ASC.includes(ch) ? 0.72 : /[α-ω]/.test(ch) ? 0.52 : ch === ' ' ? 0 : '+-=<>→←⇌~×÷·'.includes(ch) ? 0.45 : 0.52;
+      const dd = DESC.includes(ch) ? 0.21 : 0;
+      if (r.sub) { asc = Math.max(asc, a * 0.7 - 0.18); desc = Math.max(desc, dd * 0.7 + 0.18); }
+      else if (r.sup) { asc = Math.max(asc, a * 0.7 + 0.33); desc = Math.max(desc, dd * 0.7 - 0.33); }
+      else { asc = Math.max(asc, a); desc = Math.max(desc, dd); }
+    }
+    const [x0, y0, x1, y1] = group.bbox, H = Math.max(4, y1 - y0);
+    const size = clamp(H / (asc + desc), 6, 400);
+    return { kind: 'text', shape: 'text', runs, size, x: x0, y: y1 - desc * size, color, italic: !!italic, fitWidth: x1 - x0 };
+  }
+  const api = { thinBitmap: thin, _dbg: { skeletonGraph, thin, cropComp, components, edt }, vectorize, smartVectorize, glyphGroups, makeTextElement, elementBBox, shapeToSubpaths, arrowHeads, _internal: { fitCircle, fitLine, fitBeziers, findCorners } };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.VecEngine = api;
+})(typeof window !== 'undefined' ? window : this);
+</script>
+<script type="text/plain" id="expsrc">/* VectorKit exporters: SVG (native shapes), PDF and Illustrator .ai (PDF-compatible) */
+(function (root) {
+  'use strict';
+  const E = typeof module !== 'undefined' && module.exports ? require('./engine.js') : root.VecEngine;
+  const f2 = (v) => (Math.round(v * 100) / 100).toString();
+
+  // stroke path for an element, with ends pulled back under arrowheads
+  function strokeSubpaths(e) {
+    const subs = E.shapeToSubpaths(e);
+    if (!e.arrows) return subs;
+    const heads = E.arrowHeads(e); const s = subs[0].cmds.map((c) => c.slice());
+    for (const h of heads) {
+      const tip = h.cmds[0].slice(1), back = h.cmds[2].slice(1);
+      if (h.which === 'end') { const last = s[s.length - 1]; last[last.length - 2] = back[0]; last[last.length - 1] = back[1]; }
+      else { s[0][1] = back[0]; s[0][2] = back[1]; }
+    }
+    return [{ cmds: s, closed: subs[0].closed }];
+  }
+  function cmdsToD(subs) {
+    return subs.map((sp) => sp.cmds.map((c) => c[0] + c.slice(1).map(f2).join(' ')).join(' ') + (sp.closed ? ' Z' : '')).join(' ');
+  }
+
+  const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function textSVG(e, id) {
+    const sp = e.runs.map((r) => r.sub ? `<tspan font-size="${f2(e.size * 0.7)}" dy="${f2(e.size * 0.18)}">${esc(r.t)}</tspan><tspan dy="${f2(-e.size * 0.18)}"></tspan>` : r.sup ? `<tspan font-size="${f2(e.size * 0.7)}" dy="${f2(-e.size * 0.33)}">${esc(r.t)}</tspan><tspan dy="${f2(e.size * 0.33)}"></tspan>` : `<tspan>${esc(r.t)}</tspan>`).join('');
+    return `<text${id} x="${f2(e.x)}" y="${f2(e.y)}" font-family="Arial, Helvetica, sans-serif" font-size="${f2(e.size)}"${e.italic ? ' font-style="italic"' : ''} fill="${e.color}" xml:space="preserve">${sp}</text>`;
+  }
+  function elementSVG(e, opt) {
+    const id = opt && opt.ids ? ` id="${e.id}" data-shape="${e.shape}"` : '';
+    if (e.kind === 'text') return textSVG(e, id);
+    if (e.kind === 'fill') {
+      const fr = e.shape === 'compound' || e.holes ? ' fill-rule="evenodd"' : '';
+      if (e.shape === 'circle' && !e.holes) return `<circle${id} cx="${f2(e.cx)}" cy="${f2(e.cy)}" r="${f2(e.r)}" fill="${e.color}"/>`;
+      return `<path${id} d="${cmdsToD(E.shapeToSubpaths(e))}" fill="${e.color}"${fr}/>`;
+    }
+    const st = `fill="none" stroke="${e.color}" stroke-width="${f2(e.width)}" stroke-linecap="round" stroke-linejoin="round"` + (e.dash ? ` stroke-dasharray="${f2(e.dash[0])} ${f2(e.dash[1])}" stroke-linecap="butt"` : '');
+    let s;
+    if (e.shape === 'circle') s = `<circle${id} cx="${f2(e.cx)}" cy="${f2(e.cy)}" r="${f2(e.r)}" ${st}/>`;
+    else if (e.shape === 'ellipse') s = `<ellipse${id} cx="${f2(e.cx)}" cy="${f2(e.cy)}" rx="${f2(e.rx)}" ry="${f2(e.ry)}"${e.rot ? ` transform="rotate(${f2((e.rot * 180) / Math.PI)} ${f2(e.cx)} ${f2(e.cy)})"` : ''} ${st}/>`;
+    else if ((e.shape === 'rect' || e.shape === 'square') && Math.abs(e.rot || 0) < 1e-6) {
+      const xs = e.verts.map((v) => v[0]), ys = e.verts.map((v) => v[1]);
+      s = `<rect${id} x="${f2(Math.min(...xs))}" y="${f2(Math.min(...ys))}" width="${f2(Math.max(...xs) - Math.min(...xs))}" height="${f2(Math.max(...ys) - Math.min(...ys))}" ${st}/>`;
+    } else if (e.shape === 'line' && !e.arrows) s = `<line${id} x1="${f2(e.verts[0][0])}" y1="${f2(e.verts[0][1])}" x2="${f2(e.verts[1][0])}" y2="${f2(e.verts[1][1])}" ${st}/>`;
+    else if (['triangle', 'quad', 'polygon', 'rect', 'square'].includes(e.shape)) s = `<polygon${id} points="${e.verts.map((v) => f2(v[0]) + ',' + f2(v[1])).join(' ')}" ${st}/>`;
+    else if (e.shape === 'polyline' && !e.arrows) s = `<polyline${id} points="${e.verts.map((v) => f2(v[0]) + ',' + f2(v[1])).join(' ')}" ${st}/>`;
+    else s = `<path${id} d="${cmdsToD(strokeSubpaths(e))}" ${st}/>`;
+    if (e.arrows) {
+      const heads = E.arrowHeads(e).map((h) => `<path d="${cmdsToD([h])}" fill="${e.color}"/>`).join('');
+      return `<g${id}>${s.replace(id, '')}${heads}</g>`;
+    }
+    return s;
+  }
+
+  function toSVG(res, opt) {
+    opt = opt || {};
+    const fills = res.elements.filter((e) => e.kind === 'fill' && !e.glyph), strokes = res.elements.filter((e) => e.kind === 'stroke'), glyphs = res.elements.filter((e) => e.glyph || e.kind === "text");
+    const g = (name, list) => (list.length ? `<g id="${name}">${list.map((e) => elementSVG(e, opt)).join('\n')}</g>\n` : '');
+    const bg = opt.background ? `<rect width="100%" height="100%" fill="${opt.background}"/>` : '';
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${res.width}" height="${res.height}" viewBox="0 0 ${res.width} ${res.height}">\n${bg}${g('Filled_Shapes', fills)}${g('Lines_and_Shapes', strokes)}${g('Labels', glyphs)}</svg>`;
+  }
+
+  // ------------------------------------------------------------- PDF
+  function hexToRGB(h) { const n = parseInt(h.slice(1), 16); return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; }
+  function pdfPath(subs, H) {
+    const out = [];
+    for (const sp of subs) {
+      for (const c of sp.cmds) {
+        const p = c.slice(1).map((v, i) => f2(i % 2 ? H - v : v));
+        if (c[0] === 'M') out.push(`${p[0]} ${p[1]} m`); else if (c[0] === 'L') out.push(`${p[0]} ${p[1]} l`); else out.push(`${p.join(' ')} c`);
+      }
+      if (sp.closed) out.push('h');
+    }
+    return out.join('\n');
+  }
+  // WinAnsi-encodable chars stay in Helvetica; Greek & math symbols go to the standard Symbol font
+  const SYM = { 'α': 0x61, 'β': 0x62, 'χ': 0x63, 'δ': 0x64, 'ε': 0x65, 'φ': 0x66, 'γ': 0x67, 'η': 0x68, 'ι': 0x69, 'κ': 0x6B, 'λ': 0x6C, 'μ': 0x6D, 'ν': 0x6E, 'ο': 0x6F, 'π': 0x70, 'θ': 0x71, 'ρ': 0x72, 'σ': 0x73, 'τ': 0x74, 'υ': 0x75, 'ω': 0x77, 'ξ': 0x78, 'ψ': 0x79, 'ζ': 0x7A,
+    'Δ': 0x44, 'Φ': 0x46, 'Γ': 0x47, 'Λ': 0x4C, 'Π': 0x50, 'Θ': 0x51, 'Σ': 0x53, 'Ω': 0x57, 'Ψ': 0x59, '→': 0xAE, '←': 0xAC, '↑': 0xAD, '↓': 0xAF, '↔': 0xAB, '⇌': 0xAB, '⇒': 0xDE, '≤': 0xA3, '≥': 0xB3, '≠': 0xB9, '≈': 0xBB, '∞': 0xA5, '√': 0xD6, '∫': 0xF2, '∑': 0xE5, '∂': 0xB6, '∠': 0xD0, '⊥': 0x5E, '∴': 0x5C, '∈': 0xCE, '∝': 0xB5, '·': 0xD7, '−': 0x2D, '′': 0xA2 };
+  const WIN = { '€': 0x80, '‚': 0x82, '„': 0x84, '…': 0x85, '•': 0x95, '–': 0x96, '—': 0x97, '‘': 0x91, '’': 0x92, '“': 0x93, '”': 0x94 };
+  function pdfStr(codes) { return '(' + codes.map((c) => (c === 40 || c === 41 || c === 92 ? '\\' + String.fromCharCode(c) : c < 32 || c > 126 ? '\\' + c.toString(8).padStart(3, '0') : String.fromCharCode(c))).join('') + ')'; }
+  function textPDF(e, H) {
+    const [r, g, b] = hexToRGB(e.color).map(f2); const out = [`${r} ${g} ${b} rg`, 'BT'];
+    const font = e.italic ? '/F2' : '/F1';
+    out.push(`1 0 0 1 ${f2(e.x)} ${f2(H - e.y)} Tm`);
+    for (const run of e.runs) {
+      const sz = run.sub || run.sup ? e.size * 0.7 : e.size, rise = run.sub ? -e.size * 0.18 : run.sup ? e.size * 0.33 : 0;
+      // split run into font chunks
+      let cur = null, codes = [];
+      const flush = () => { if (codes.length) out.push(`${cur} ${f2(sz)} Tf ${f2(rise)} Ts ${pdfStr(codes)} Tj`); codes = []; };
+      for (const ch of String(run.t)) {
+        let f, c; const cp = ch.codePointAt(0);
+        if (SYM[ch] !== undefined) { f = '/F3'; c = SYM[ch]; } else if (WIN[ch] !== undefined) { f = font; c = WIN[ch]; } else if (cp < 256) { f = font; c = cp; } else { f = font; c = 63; }
+        if (f !== cur) { flush(); cur = f; } codes.push(c);
+      }
+      flush();
+    }
+    out.push('0 Ts ET'); return out.join('\n');
+  }
+  function toPDF(res, opt) {
+    opt = opt || {}; const H = res.height; const ops = [];
+    ops.push('1 J 1 j');
+    const order = [...res.elements.filter((e) => e.kind === 'fill' && !e.glyph), ...res.elements.filter((e) => e.kind === 'stroke'), ...res.elements.filter((e) => e.glyph || e.kind === 'text')];
+    for (const e of order) {
+      const [r, g, b] = hexToRGB(e.color).map(f2);
+      ops.push('q');
+      if (e.kind === 'text') { ops.push(textPDF(e, H)); ops.push('Q'); continue; }
+      if (e.kind === 'fill') {
+        ops.push(`${r} ${g} ${b} rg`); ops.push(pdfPath(E.shapeToSubpaths(e), H)); ops.push(e.shape === 'compound' || e.holes ? 'f*' : 'f');
+      } else {
+        ops.push(`${r} ${g} ${b} RG ${f2(e.width)} w`);
+        if (e.dash) ops.push(`0 J [${f2(e.dash[0])} ${f2(e.dash[1])}] 0 d`);
+        ops.push(pdfPath(strokeSubpaths(e), H)); ops.push('S');
+        if (e.arrows) { ops.push(`${r} ${g} ${b} rg`); for (const h of E.arrowHeads(e)) { ops.push(pdfPath([h], H)); ops.push('f'); } }
+      }
+      ops.push('Q');
+    }
+    const content = ops.join('\n');
+    const now = new Date(); const pad = (n) => String(n).padStart(2, '0');
+    const date = `D:${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    const title = (opt.title || 'VectorKit drawing').replace(/[()\\]/g, '');
+    const objs = [
+      '<< /Type /Catalog /Pages 2 0 R >>',
+      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${res.width} ${res.height}] /TrimBox [0 0 ${res.width} ${res.height}] /ArtBox [0 0 ${res.width} ${res.height}] /Contents 4 0 R /Resources << /Font << /F1 6 0 R /F2 7 0 R /F3 8 0 R >> >> >>`,
+      `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+      `<< /Title (${title}) /Creator (VectorKit Diagram Vectorizer) /Producer (VectorKit) /CreationDate (${date}) >>`,
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Symbol >>',
+    ];
+    let pdf = '%PDF-1.5\n%\xE2\xE3\xCF\xD3\n'; const offs = [];
+    objs.forEach((o, i) => { offs.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+    const xref = pdf.length;
+    pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offs.map((o) => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+    pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R /Info 5 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+    const bytes = new Uint8Array(pdf.length); for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
+    return bytes;
+  }
+
+  function pdfEncodable(str) { for (const ch of String(str)) { const cp = ch.codePointAt(0); if (!(cp < 256 || SYM[ch] !== undefined || WIN[ch] !== undefined)) return false; } return true; }
+  const api = { pdfEncodable, toSVG, toPDF, elementSVG, cmdsToD, strokeSubpaths };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.VecExport = api;
+})(typeof window !== 'undefined' ? window : this);
+</script>
+<script type="text/plain" id="ocrsrc">/* VectorKit offline label reader — free, no internet, no account.
+ * Recognises handwritten / printed labels (A, B, x, y, H2O, θ, 5 cm …) by comparing the
+ * stroke skeleton of each character against skeletons of the same characters drawn with
+ * the device's own fonts (shape matching with chamfer distance), plus context rules. */
+(function (root) {
+  'use strict';
+  const E = root.VecEngine, X = root.VecExport;
+  const S = 40, BOX = 30; // feature canvas size / glyph box
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-=()<>/→θπαβΔΩλμ√';
+  const FONTS = ['Arial, Helvetica, "Liberation Sans", "DejaVu Sans", sans-serif', '"Times New Roman", Times, "DejaVu Serif", serif', '"Courier New", Courier, monospace', '"Comic Sans MS", "Comic Relief", "Chalkboard SE", cursive', 'Verdana, Tahoma, sans-serif'];
+  const STYLES = [];
+  FONTS.forEach((f, i) => { STYLES.push('400 64px ' + f); if (i === 0 || i === 1) STYLES.push('italic 400 64px ' + f); if (i === 0) STYLES.push('700 64px ' + f); });
+  const PAIRS = { c: 'C', o: 'O', s: 'S', u: 'U', v: 'V', w: 'W', x: 'X', z: 'Z', p: 'P', k: 'K' };
+  let templates = null;
+
+  // binary bitmap (Uint8Array w*h) → normalised skeleton feature
+  function feature(bm, w, h) {
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (bm[y * w + x]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (x1 < 0) return null;
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    // skeleton at (near) native resolution, padded
+    const pad = 3, ds = Math.max(1, Math.max(bw, bh) / 110), cw = Math.ceil(bw / ds) + 2 * pad, ch = Math.ceil(bh / ds) + 2 * pad;
+    const crop = new Uint8Array(cw * ch);
+    for (let y = 0; y < ch - 2 * pad; y++) for (let x = 0; x < cw - 2 * pad; x++) { const sx = Math.min(x1, x0 + Math.floor(x * ds)), sy = Math.min(y1, y0 + Math.floor(y * ds)); crop[(y + pad) * cw + x + pad] = bm[sy * w + sx]; }
+    const m = new Uint8Array(S * S), k = BOX / Math.max(bw, bh) * ds, ox = (S - (cw - 2 * pad) * k) / 2, oy = (S - (ch - 2 * pad) * k) / 2;
+    for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (crop[y * cw + x]) { const X2 = Math.floor(ox + (x - pad) * k), Y2 = Math.floor(oy + (y - pad) * k); if (X2 >= 0 && Y2 >= 0 && X2 < S && Y2 < S) m[Y2 * S + X2] = 1; }
+    const skFull = E.thinBitmap({ m: crop, w: cw, h: ch });
+    const set = new Uint8Array(S * S);
+    for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (skFull[y * cw + x]) { const X2 = Math.floor(ox + (x - pad) * k), Y2 = Math.floor(oy + (y - pad) * k); if (X2 >= 0 && Y2 >= 0 && X2 < S && Y2 < S) set[Y2 * S + X2] = 1; }
+    const pts = []; for (let i = 0; i < S * S; i++) if (set[i]) pts.push(i);
+    if (pts.length < 3) for (let i = 0; i < S * S; i++) if (m[i]) pts.push(i);
+    // chamfer distance transform of the skeleton
+    const dt = new Float32Array(S * S).fill(1e3);
+    for (const p of pts) dt[p] = 0;
+    for (let pass = 0; pass < 2; pass++) {
+      for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const i = y * S + x; let v = dt[i]; if (x) v = Math.min(v, dt[i - 1] + 1); if (y) v = Math.min(v, dt[i - S] + 1); if (x && y) v = Math.min(v, dt[i - S - 1] + 1.4); if (y && x < S - 1) v = Math.min(v, dt[i - S + 1] + 1.4); dt[i] = v; }
+      for (let y = S - 1; y >= 0; y--) for (let x = S - 1; x >= 0; x--) { const i = y * S + x; let v = dt[i]; if (x < S - 1) v = Math.min(v, dt[i + 1] + 1); if (y < S - 1) v = Math.min(v, dt[i + S] + 1); if (x < S - 1 && y < S - 1) v = Math.min(v, dt[i + S + 1] + 1.4); if (y < S - 1 && x) v = Math.min(v, dt[i + S - 1] + 1.4); dt[i] = v; }
+    }
+    // holes count (topology: A,B,D,O,P,Q,R,a,b,d,e,g,o,p,q,0,4,6,8,9 …)
+    const N = cw * ch, inv = new Uint8Array(N); for (let i = 0; i < N; i++) inv[i] = crop[i] ? 0 : 1;
+    let holes = 0; const seen = new Uint8Array(N), minHole = Math.max(4, (cw * ch) * 0.004);
+    for (let i = 0; i < N; i++) {
+      if (!inv[i] || seen[i]) continue; let border = false, area = 0; const st = [i]; seen[i] = 1;
+      while (st.length) { const p = st.pop(), x = p % cw, y = (p / cw) | 0; area++; if (!x || !y || x === cw - 1 || y === ch - 1) border = true;
+        for (const q of [p - 1, p + 1, p - cw, p + cw]) { const qx = q % cw; if (q < 0 || q >= N || Math.abs(qx - x) > 1 || !inv[q] || seen[q]) continue; seen[q] = 1; st.push(q); } }
+      if (!border && area >= minHole) holes++;
+    }
+    return { pts, dt, aspect: bw / bh, holes };
+  }
+  function score(a, b) {
+    let s1 = 0; for (const p of a.pts) s1 += Math.min(8, b.dt[p]); s1 /= a.pts.length;
+    let s2 = 0; for (const p of b.pts) s2 += Math.min(8, a.dt[p]); s2 /= b.pts.length;
+    const asp = Math.abs(Math.log((a.aspect + 0.05) / (b.aspect + 0.05)));
+    return (s1 + s2) / 2 + 1.0 * asp + (Math.min(a.holes, 2) === Math.min(b.holes, 2) ? 0 : 0.6);
+  }
+  function buildTemplates() {
+    if (templates) return templates;
+    templates = [];
+    const c = document.createElement('canvas'); c.width = 120; c.height = 120; const g = c.getContext('2d', { willReadFrequently: true });
+    for (const st of STYLES) for (const ch of CHARS) {
+      g.fillStyle = '#fff'; g.fillRect(0, 0, 120, 120); g.fillStyle = '#000'; g.font = st; g.textBaseline = 'middle'; g.textAlign = 'center'; g.fillText(ch, 60, 64);
+      const d = g.getImageData(0, 0, 120, 120).data, bm = new Uint8Array(120 * 120);
+      for (let i = 0; i < 120 * 120; i++) bm[i] = d[i * 4] < 128 ? 1 : 0;
+      const f = feature(bm, 120, 120); if (f) { f.ch = ch; templates.push(f); }
+    }
+    return templates;
+  }
+  // rasterise vector glyph elements into a bitmap
+  function rasterize(els, bbox) {
+    const pad = 2, bw = bbox[2] - bbox[0], bh = bbox[3] - bbox[1], k = Math.min(4, 90 / Math.max(bw, bh, 1));
+    const W = Math.ceil(bw * k) + 2 * pad, H = Math.ceil(bh * k) + 2 * pad;
+    const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d', { willReadFrequently: true });
+    g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.setTransform(k, 0, 0, k, pad - bbox[0] * k, pad - bbox[1] * k); g.fillStyle = '#000';
+    for (const e of els) g.fill(new Path2D(X.cmdsToD(E.shapeToSubpaths(e))), e.shape === 'compound' || e.holes ? 'evenodd' : 'nonzero');
+    const d = g.getImageData(0, 0, W, H).data, bm = new Uint8Array(W * H); for (let i = 0; i < W * H; i++) bm[i] = d[i * 4] < 128 ? 1 : 0;
+    return { bm, W, H };
+  }
+  // split a glyph group into characters (merge pieces stacked vertically, e.g. i, j, =, ÷)
+  function chars(group, res) {
+    const items = group.members.map((id) => res.elements.find((e) => e.id === id)).filter(Boolean).map((e) => ({ els: [e], b: E.elementBBox(e) }));
+    items.sort((a, b) => a.b[0] - b.b[0]);
+    const out = [];
+    for (const it of items) {
+      const last = out[out.length - 1];
+      if (last) { const ov = Math.min(last.b[2], it.b[2]) - Math.max(last.b[0], it.b[0]); const mw = Math.min(last.b[2] - last.b[0], it.b[2] - it.b[0]); if (ov > 0.55 * mw) { last.els.push(...it.els); last.b = [Math.min(last.b[0], it.b[0]), Math.min(last.b[1], it.b[1]), Math.max(last.b[2], it.b[2]), Math.max(last.b[3], it.b[3])]; continue; } }
+      out.push({ els: it.els.slice(), b: it.b.slice() });
+    }
+    return out;
+  }
+  function classify(ch) {
+    const T = buildTemplates(); const r = rasterize(ch.els, ch.b); const f = feature(r.bm, r.W, r.H); if (!f) return null;
+    const best = new Map();
+    for (const t of T) { const s = score(f, t); if (!best.has(t.ch) || s < best.get(t.ch)) best.set(t.ch, s); }
+    return [...best.entries()].sort((a, b) => a[1] - b[1]);
+  }
+  // read every glyph group. returns [{group, runs, confidence}]
+  function readLabels(res) {
+    const groups = E.glyphGroups(res); const results = [];
+    // does the drawing contain numbers (axis ticks, values)? → single look-alike chars read as digits
+    let numericImage = false;
+    const allH = groups.map((g) => g.bbox[3] - g.bbox[1]).sort((a, b) => a - b); const refH = allH[Math.floor(allH.length * 0.6)] || 20;
+    for (const gr of groups) { const cs = chars(gr, res); if (cs.length >= 2 && cs.length <= 4) { const top = cs.map((c) => (classify(c) || [['?']])[0][0]); if (top.every((t) => /[0-9.]/.test(t))) { numericImage = true; break; } } }
+    for (const gr of groups) {
+      const cs = chars(gr, res); if (!cs.length || cs.length > 14) continue;
+      const lineH = Math.max(...cs.map((c) => c.b[3] - c.b[1]));
+      const runs = []; let worst = 0, ok = true; let prev = null;
+      cs.forEach((c, idx) => {
+        const ranked = classify(c); if (!ranked) { ok = false; return; }
+        let [ch, s] = ranked[0];
+        const h = c.b[3] - c.b[1];
+        // context priors: letters vs look-alike digits
+        const LD = { '8': 'B', '0': 'O', '5': 'S', '2': 'Z', '6': 'b', '1': 'I', '9': 'g' };
+        const DL = { B: '8', O: '0', o: '0', S: '5', s: '5', Z: '2', z: '2', b: '6', I: '1', l: '1', g: '9' };
+        const sc = (k) => (ranked.find((r) => r[0] === k) || [k, 99])[1];
+        const wantDigits = (prev && /\d/.test(prev.t)) || (!prev && cs.length > 1 && /\d/.test(String((classify(cs[1]) || [['']])[0][0]))) || (cs.length === 1 && numericImage);
+        if (wantDigits && DL[ch] && sc(DL[ch]) < s + 0.35) { ch = DL[ch]; }
+        else if (!wantDigits && LD[ch] && sc(LD[ch]) < s + 0.35) { ch = LD[ch]; }
+        if ('1lI|'.includes(ch) && !wantDigits && cs.length > 1 && prev && /[a-z]/.test(prev.t)) ch = 'l';
+        // case from size
+        const low = Object.keys(PAIRS).find((k) => k === ch || PAIRS[k] === ch);
+        if (low) { const ref = cs.length > 1 ? lineH : refH; ch = h >= 0.72 * ref ? PAIRS[low] : low; }
+        // sub / superscript relative to previous main character
+        let sub = false, sup = false;
+        if (prev && !prev.sub && !prev.sup && /[A-Za-z)\]]/.test(prev.t.slice(-1)) && /[0-9+\-−nxy]/.test(ch)) {
+          const ph = prev.h, pb = prev.b;
+          if (h < 0.82 * ph && c.b[1] > pb[1] + 0.25 * ph && c.b[3] >= pb[3] - 0.08 * ph) sub = true;
+          else if (h < 0.82 * ph && c.b[3] < pb[3] - 0.25 * ph && c.b[1] <= pb[1] + 0.08 * ph) sup = true;
+        }
+        worst = Math.max(worst, s);
+        const run = { t: ch, sub, sup }; runs.push(run); prev = Object.assign({ h, b: c.b }, run);
+      });
+      if (!ok || !runs.length) continue;
+      // units: "5cm", "12 kg", "3V" → digits before the unit
+      if (runs.length >= 2 && runs[runs.length - 1].t === 'm' && runs[runs.length - 2].t === 'C') runs[runs.length - 2].t = 'c';
+      const flat = runs.map((r) => r.t).join('');
+      const um = flat.match(/^([0-9SOoIlZzBbg.]+)(cm|mm|km|m|kg|g|s|ms|V|A|N|J|W|Hz|Ω|K|mA|kV)$/);
+      if (um && /[0-9]/.test(um[1].replace(/[SOoIlZzBbg]/g, '')) || (um && um[1].length <= 3)) { const map = { S: '5', O: '0', o: '0', I: '1', l: '1', Z: '2', z: '2', B: '8', b: '6', g: '9' }; let i2 = 0; for (const r of runs) { if (i2 >= um[1].length) break; r.t = map[r.t] || r.t; r.sub = r.sup = false; i2 += r.t.length; } }
+      // merge consecutive runs with the same style
+      const merged = []; for (const r of runs) { const l = merged[merged.length - 1]; if (l && l.sub === r.sub && l.sup === r.sup) l.t += r.t; else merged.push(Object.assign({}, r)); }
+      results.push({ group: gr, runs: merged.map((r) => ({ t: r.t, sub: r.sub || undefined, sup: r.sup || undefined })), confidence: Math.max(0, Math.min(1, 1 - (worst - 1.2) / 2.6)) });
+    }
+    return results;
+  }
+  // "H_2O", "x^2", "CO_{2}", "v_{max}" → runs
+  function parseRuns(str) {
+    const runs = []; let i = 0; const push = (t, sub, sup) => { if (!t) return; const l = runs[runs.length - 1]; if (l && !!l.sub === !!sub && !!l.sup === !!sup) l.t += t; else runs.push({ t, sub: sub || undefined, sup: sup || undefined }); };
+    while (i < str.length) {
+      const c = str[i];
+      if ((c === '_' || c === '^') && i + 1 < str.length) {
+        let t; if (str[i + 1] === '{') { const j = str.indexOf('}', i + 2); t = str.slice(i + 2, j < 0 ? str.length : j); i = j < 0 ? str.length : j + 1; } else { t = str[i + 1]; i += 2; }
+        push(t, c === '_', c === '^');
+      } else { push(c); i++; }
+    }
+    return runs;
+  }
+  const runsToString = (runs) => runs.map((r) => (r.sub ? (r.t.length > 1 ? '_{' + r.t + '}' : '_' + r.t) : r.sup ? (r.t.length > 1 ? '^{' + r.t + '}' : '^' + r.t) : r.t)).join('');
+  root.VecOCR = { _dbg: { chars, rasterize, classify, feature, S },  readLabels, parseRuns, runsToString, buildTemplates };
+})(typeof window !== 'undefined' ? window : this);
+</script>
+<script>
+(function(){
+'use strict';
+const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+const engSrc = document.getElementById('engsrc').textContent;
+(new Function(engSrc)).call(window);
+(new Function(document.getElementById('expsrc').textContent)).call(window);
+(new Function(document.getElementById('ocrsrc').textContent)).call(window);
+const E = window.VecEngine, X = window.VecExport, OCR = window.VecOCR;
+window.__vk = { get res() { return res; } };
+const $ = (id) => document.getElementById(id);
+const NAMES = {text:'টেক্সট',line:'রেখা',circle:'বৃত্ত',ellipse:'উপবৃত্ত',triangle:'ত্রিভুজ',rect:'আয়তক্ষেত্র',square:'বর্গ',quad:'চতুর্ভুজ',polygon:'বহুভুজ',polyline:'ভাঙা রেখা',arc:'বৃত্তচাপ',curve:'বক্ররেখা',path:'জটিল আকৃতি',compound:'ভরাট আকৃতি','text/symbol':'লেখা/চিহ্ন'};
+const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+let src = null, textSeq = 0;            // {canvas, name}
+let res = null, history = [], selected = null, viewMode = 'vec';
+let worker = null;
+try { worker = new Worker(URL.createObjectURL(new Blob([engSrc + '\nself.onmessage=function(e){try{var d=e.data;var o=self.VecEngine.smartVectorize(d.rgba,d.w,d.h,d.opts);var im=o.image;var buf=im.rgba===d.rgba?null:im.rgba;self.postMessage({ok:true,res:o.res,fixes:o.fixes,image:buf?{rgba:buf,w:im.w,h:im.h}:null},buf?[buf.buffer]:[]);}catch(err){self.postMessage({ok:false,err:String(err&&err.stack||err)});}};'], {type:'application/javascript'}))); } catch (e) { worker = null; }
+
+function toast(msg, ms){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', ms||3200); }
+function busy(on, txt){ $('busy').style.display = on?'flex':'none'; if(txt) $('busyTxt').textContent = txt; }
+
+// ---------------- input
+$('camBtn').onclick = () => $('camIn').click();
+$('fileBtn').onclick = () => $('fileIn').click();
+$('camIn').onchange = (e) => e.target.files[0] && loadFile(e.target.files[0]);
+$('fileIn').onchange = (e) => e.target.files[0] && loadFile(e.target.files[0]);
+const drop = $('drop');
+['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('on'); }));
+['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('on'); }));
+document.addEventListener('drop', e => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) loadFile(f); });
+document.addEventListener('paste', e => { const it = [...(e.clipboardData||{}).items||[]].find(i => i.type.startsWith('image/')); if (it) loadFile(it.getAsFile()); });
+
+function loadFile(file){
+  if (!file.type.startsWith('image/') && !/\.(png|jpe?g|webp|bmp|gif)$/i.test(file.name)) { toast('এটি ছবির ফাইল নয়। PNG / JPG দিন।'); return; }
+  const url = URL.createObjectURL(file); const img = new Image();
+  img.onload = () => { setSource(img, file.name.replace(/\.[^.]+$/, '') || 'drawing'); URL.revokeObjectURL(url); };
+  img.onerror = () => toast('ছবিটি খোলা গেল না। অন্য ফরম্যাটে (JPG/PNG) চেষ্টা করুন।');
+  img.src = url;
+}
+function setSource(img, name){
+  const MAX = 1600; let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+  const k = Math.min(1, MAX / Math.max(w, h)); // upscale small images for better tracing
+  const up = Math.max(w, h) < 700 ? Math.min(2, 900 / Math.max(w, h)) : 1;
+  const s = k * up; const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, c.width, c.height);
+  src = { canvas: c, name }; history = []; run();
+}
+$('rotBtn').onclick = () => { if (!src) return; const o = src.canvas, c = document.createElement('canvas'); c.width = o.height; c.height = o.width; const g = c.getContext('2d'); g.translate(c.width, 0); g.rotate(Math.PI / 2); g.drawImage(o, 0, 0); src.canvas = c; history = []; run(); };
+
+// ---------------- options
+const opt = () => ({ perspective: $('persp').checked, deskew: $('deskew').checked, sensitivity: +$('sens').value, tolScale: +$('tol').value, snapStrength: Math.max(0.001, +$('snap').value), weld: +$('snap').value > 0, minNoise: +$('noise').value, uniformStroke: $('uniform').checked, pureBlack: $('black').checked, monochrome: $('mono').checked });
+[['sens','vSens'],['tol','vTol'],['snap','vSnap'],['noise','vNoise']].forEach(([a,b]) => { $(a).oninput = () => $(b).textContent = $(a).value; $(a).onchange = () => src && run(); });
+['uniform','black','mono','persp','deskew','ocrAuto'].forEach(id => $(id).onchange = () => src && run());
+$('rerun').onclick = () => src && run();
+
+function run(){
+  if (!src) return; busy(true, 'ছবি বুঝে নিচ্ছি: কোণ, বাঁকা ভাব, অস্পষ্টতা ঠিক করে আঁকছি…');
+  aiAbort();
+  const c = src.canvas, d = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+  const o = opt();
+  const done = (r, fixes, image) => {
+    busy(false); res = r; res.fixes = fixes || []; selected = null; window.__vkDone = (window.__vkDone || 0) + 1;
+    if (image) { const fc = document.createElement('canvas'); fc.width = image.w; fc.height = image.h; fc.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(image.rgba), image.w, image.h), 0, 0); src.fixed = fc; } else src.fixed = null;
+    render(); ['dlAI','dlSVG','dlPDF','dlPNG'].forEach(i => $(i).disabled = false); $('editBar').style.display = 'flex';
+    if ($('ocrAuto').checked) setTimeout(() => { runOCR(); aiReady(); }, 20); else aiReady();
+  };
+  const local = () => setTimeout(() => { try { const r = E.smartVectorize(d.data, c.width, c.height, o); done(r.res, r.fixes, r.image.rgba === d.data ? null : r.image); } catch (e) { busy(false); console.error(e); toast('দুঃখিত, প্রসেস করতে সমস্যা হয়েছে।'); } }, 30);
+  if (worker) {
+    worker.onmessage = (ev) => { if (ev.data.ok) done(ev.data.res, ev.data.fixes, ev.data.image); else { console.error(ev.data.err); local(); } };
+    worker.onerror = () => { worker = null; local(); };
+    worker.postMessage({ rgba: d.data, w: c.width, h: c.height, opts: o });
+  } else local();
+}
+
+// ---------------- render
+function vectorSVG(interactive, transparent){
+  let s = X.toSVG(res, { ids: interactive, background: transparent ? null : '#ffffff' });
+  return s.replace(/^<\?xml[^>]*>\s*/, '');
+}
+function render(){
+  const v = $('view'); [...v.querySelectorAll('.layer,img,svg')].forEach(n => { if (n.closest('#busy') || n.closest('#empty')) return; n.remove(); });
+  $('empty').style.display = src ? 'none' : 'block';
+  if (!src) return;
+  const origURL = src.canvas.toDataURL('image/jpeg', 0.85), fixedURL = (src.fixed || src.canvas).toDataURL('image/jpeg', 0.85);
+  const holder = document.createElement('div'); holder.className = 'layer';
+  if (viewMode === 'orig' || !res) holder.innerHTML = `<div class="box"><img src="${origURL}"></div>`;
+  else if (viewMode === 'side') { holder.style.gap = '6px'; holder.innerHTML = `<div class="box" style="width:50%"><img src="${fixedURL}"></div><div class="box" style="width:50%">${vectorSVG(true)}</div>`; }
+  else if (viewMode === 'over') holder.innerHTML = `<div class="box"><img src="${fixedURL}" style="opacity:.35;position:absolute;inset:0"><div style="position:absolute;inset:0">${vectorSVG(true, true)}</div></div>`;
+  else holder.innerHTML = `<div class="box">${vectorSVG(true)}</div>`;
+  v.appendChild(holder);
+  holder.querySelectorAll('svg').forEach(svg => { svg.removeAttribute('width'); svg.removeAttribute('height'); });
+  // selection
+  holder.querySelectorAll('svg [data-shape]').forEach(n => { n.classList.add('hit'); n.addEventListener('click', (e) => { e.stopPropagation(); select(n.id); }); });
+  holder.querySelectorAll('svg').forEach(s => s.addEventListener('click', (ev) => {
+    // tap inside a label's box (e.g. the empty middle of "C" or "O") selects that label
+    let hit = null; try { const pt = s.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const q = pt.matrixTransform(s.getScreenCTM().inverse()); const pad = 4;
+      for (const e of res.elements) { if (!(e.glyph || e.kind === 'text')) continue; const b = E.elementBBox(e); if (q.x >= b[0] - pad && q.x <= b[2] + pad && q.y >= b[1] - pad && q.y <= b[3] + pad) { hit = e.id; break; } } } catch (err) {}
+    select(hit);
+  }));
+  if (selected) { const n = holder.querySelector('#' + selected); if (n) n.classList.add('selected'); }
+  // stats
+  const st = res ? res.stats : {}; $('stats').innerHTML = res ? Object.entries(st).map(([k, n]) => `<span class="chip">${NAMES[k] || k}: ${bn(n)}</span>`).join('') + `<span class="chip" style="background:#f2f2f2;color:#555">সময়: ${bn((res.ms/1000).toFixed(1))} সে.</span>` + (res.fixes || []).map(fixChip).join('') + (res.ocrCount ? `<span class="chip fix">🔤 ${bn(res.ocrCount)}টি লেখা পড়ে টেক্সট বানানো হয়েছে (ফ্রি)</span>` : '') + (res.ocrSkipped ? `<span class="chip" style="background:#f1f1f1;color:#555">${bn(res.ocrSkipped)}টি অস্পষ্ট লেখা আঁকা অবস্থায় আছে — ক্লিক করে টাইপ করুন</span>` : '') : '';
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => { document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t)); viewMode = t.dataset.view; render(); });
+
+// ---------------- editing
+function fixChip(f){ if (f === 'perspective') return '<span class="chip fix">📐 কাগজের কোণ ও পার্সপেক্টিভ ঠিক করা হয়েছে</span>'; if (f.startsWith('deskew:')) return `<span class="chip fix">↻ ছবি ${bn(Math.abs(+f.split(':')[1]).toFixed(1))}° বাঁকা ছিল — সোজা করা হয়েছে</span>`; if (f === 'faint') return '<span class="chip fix">✨ অস্পষ্ট/ঝাপসা লাইন স্পষ্ট করা হয়েছে</span>'; if (f === 'ai') return '<span class="chip fix">🤖 Claude AI দিয়ে লেখা ও দাগ ঠিক করা হয়েছে</span>'; return ''; }
+const elById = (id) => res && res.elements.find(e => e.id === id);
+function select(id){
+  selected = id; const e = elById(id);
+  $('selInfo').textContent = e ? `বাছাই: ${e.kind === 'text' ? 'টেক্সট "' + e.runs.map(r => r.t).join('') + '"' : NAMES[e.glyph ? 'text/symbol' : e.shape] || e.shape}${e.arrows ? ' (তীর)' : ''}` : 'কোনো অংশে ক্লিক করে বাছাই করুন';
+  ['selColor','delBtn'].forEach(i => $(i).disabled = !e); $('selWidth').disabled = !(e && e.kind === 'stroke');
+  if (e) { $('selColor').value = e.color; if (e.width) $('selWidth').value = e.width; }
+  const isLabel = e && (e.kind === 'text' || e.glyph);
+  $('txtBox').style.display = isLabel ? 'inline-flex' : 'none';
+  if (isLabel) { $('txtIn').value = e.kind === 'text' ? OCR.runsToString(e.runs) : ''; if (e.glyph) $('selInfo').textContent = 'লেখা/চিহ্ন — সঠিক লেখাটি টাইপ করুন:'; }
+  render();
+}
+function snapshot(){ history.push(JSON.stringify(res.elements)); if (history.length > 40) history.shift(); $('undoBtn').disabled = false; }
+$('delBtn').onclick = () => { const e = elById(selected); if (!e) return; snapshot(); res.elements = res.elements.filter(x => x !== e); selected = null; select(null); };
+$('selColor').onchange = () => { const e = elById(selected); if (!e) return; snapshot(); e.color = $('selColor').value; render(); };
+$('selWidth').onchange = () => { const e = elById(selected); if (!e) return; snapshot(); e.width = +$('selWidth').value; render(); };
+$('undoBtn').onclick = () => { if (!history.length) return; res.elements = JSON.parse(history.pop()); $('undoBtn').disabled = !history.length; selected = null; select(null); };
+document.addEventListener('keydown', (e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && selected && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $('delBtn').click(); } if ((e.ctrlKey || e.metaKey) && e.key === 'z') $('undoBtn').click(); });
+
+// ---------------- downloads
+let dlCap = null; // platform save capability (hosted page)
+const inSandbox = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { dlCap = d; if (d) { $('dlApp').style.display = 'flex'; $('dlNote').innerHTML += '<br>এই পেজে .AI ফাইলটি একটি .zip-এর ভেতরে আসবে (zip খুললেই .ai পাবেন)। অফলাইন অ্যাপ বা মোবাইল APK-তে সরাসরি .ai ডাউনলোড হয়।'; } }).catch(() => {});
+
+function crc32(buf){ let c, crc = 0xFFFFFFFF; const T = crc32.T || (crc32.T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })()); for (let i = 0; i < buf.length; i++) crc = T[(crc ^ buf[i]) & 255] ^ (crc >>> 8); return (crc ^ 0xFFFFFFFF) >>> 0; }
+function zip(files){ // files: [{name, data:Uint8Array}] stored (no compression)
+  const enc = new TextEncoder(), parts = [], central = []; let off = 0;
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const h = new DataView(new ArrayBuffer(30)); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint32(14, crc, true); h.setUint32(18, sz, true); h.setUint32(22, sz, true); h.setUint16(26, nm.length, true);
+    parts.push(new Uint8Array(h.buffer), nm, f.data);
+    const c = new DataView(new ArrayBuffer(46)); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint32(16, crc, true); c.setUint32(20, sz, true); c.setUint32(24, sz, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), nm); off += 30 + nm.length + sz;
+  }
+  const csize = central.reduce((s, p) => s + p.length, 0);
+  const e = new DataView(new ArrayBuffer(22)); e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...central, new Uint8Array(e.buffer)], { type: 'application/zip' });
+}
+async function blobToBase64(b){ const buf = new Uint8Array(await b.arrayBuffer()); let s = ''; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000)); return btoa(s); }
+async function save(filename, blob){
+  // 1) Android app bridge
+  if (window.AndroidBridge && window.AndroidBridge.saveFile) { try { const ok = window.AndroidBridge.saveFile(filename, await blobToBase64(blob), blob.type || 'application/octet-stream'); toast(ok ? 'ডাউনলোড ফোল্ডারে সেভ হয়েছে: ' + filename : 'সেভ করা যায়নি'); } catch (e) { toast('সেভ করা যায়নি'); } return; }
+  // 2) hosted page capability
+  if (dlCap) {
+    let name = filename, data = blob;
+    if (/\.ai$/i.test(filename)) { name = filename.replace(/\.ai$/i, '') + '_illustrator.zip'; data = zip([{ name: filename, data: new Uint8Array(await blob.arrayBuffer()) }]); }
+    try { await dlCap.save({ filename: name, data }); toast('সেভ হয়েছে: ' + name); } catch (e) { if (e && e.code === 'declined') return; toast('এখানে ডাউনলোড করা গেল না (' + (e && e.code || 'error') + ')'); }
+    return;
+  }
+  // 3) normal browser
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  if (inSandbox) toast('ডাউনলোড শুরু না হলে অ্যাপটি অফলাইন কপি হিসেবে খুলে নিন।');
+}
+const base = () => (src && src.name || 'drawing').replace(/[^\wঀ-৿-]+/g, '_');
+$('dlAI').onclick = () => save(base() + '.ai', new Blob([X.toPDF(res, { title: base() })], { type: 'application/pdf' }));
+$('dlPDF').onclick = () => save(base() + '.pdf', new Blob([X.toPDF(res, { title: base() })], { type: 'application/pdf' }));
+$('dlSVG').onclick = () => save(base() + '.svg', new Blob([X.toSVG(res, {})], { type: 'image/svg+xml' }));
+$('dlPNG').onclick = () => { const svg = X.toSVG(res, { background: '#ffffff' }); const img = new Image(); const k = Math.max(1, 2400 / Math.max(res.width, res.height)); img.onload = () => { const c = document.createElement('canvas'); c.width = res.width * k; c.height = res.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); c.toBlob(b => save(base() + '.png', b), 'image/png'); }; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); };
+$('dlApp').onclick = () => save('VectorKit.html', new Blob([ORIGINAL_HTML], { type: 'text/html' }));
+
+
+
+// ---------------- free offline label reading + manual text editing
+function runOCR(){
+  if (!res || !OCR) return;
+  let found = [];
+  try { found = OCR.readLabels(res); } catch (e) { console.error(e); return; }
+  const good = found.filter(f => f.confidence >= 0.9 && f.runs.length && f.runs.every(r => X.pdfEncodable(r.t)));
+  if (!good.length) return;
+  snapshot();
+  for (const f of good) {
+    const members = res.elements.filter(e => f.group.members.includes(e.id)); if (!members.length) continue;
+    const t = E.makeTextElement(f.group, f.runs, members[0].color, false); t.id = 'tx' + (++textSeq); t.ocr = true;
+    res.elements = res.elements.filter(e => !f.group.members.includes(e.id)); res.elements.push(t);
+  }
+  standardizeTextSizes();
+  res.ocrCount = good.length; res.ocrSkipped = found.length - good.length;
+  recount(); render();
+}
+function standardizeTextSizes(){ // one consistent label size, like a textbook figure
+  const T = res.elements.filter(e => e.kind === 'text'); if (T.length < 2) return;
+  const caps = T.map(e => e.size * (/[A-Z0-9]/.test(e.runs.map(r => r.t).join('')) ? 1 : 0.8)).sort((a, b) => a - b);
+  const m = caps[caps.length >> 1];
+  for (const e of T) { if (e.size < 0.55 * m || e.size > 1.8 * m) continue; const bottom = e.y; e.size = Math.round(m * 2) / 2; e.y = bottom; }
+}
+function recount(){ const st = {}; res.elements.forEach(e => { const k = e.kind === 'text' ? 'text' : e.glyph ? 'text/symbol' : e.shape; st[k] = (st[k] || 0) + 1; }); res.stats = st; }
+function groupOf(id){ return E.glyphGroups(res).find(g => g.members.includes(id)); }
+function applyTyped(){
+  const e = elById(selected); const v = $('txtIn').value.trim(); if (!e || !v) return;
+  const runs = OCR.parseRuns(v); if (!runs.length) return;
+  snapshot();
+  if (e.kind === 'text') { const b = E.elementBBox(e); const t = E.makeTextElement({ bbox: [e.x, e.y - e.size * 0.72, b[2], e.y] }, runs, e.color, e.italic); t.size = e.size; t.x = e.x; t.y = e.y; t.id = e.id; res.elements[res.elements.indexOf(e)] = t; }
+  else { const gr = groupOf(e.id) || { bbox: E.elementBBox(e), members: [e.id] }; const t = E.makeTextElement(gr, runs, e.color, false); t.id = 'tx' + (++textSeq); res.elements = res.elements.filter(x => !gr.members.includes(x.id)); res.elements.push(t); selected = t.id; }
+  recount(); select(selected); toast('লেখা বসানো হয়েছে — Illustrator-এ এটি এডিটযোগ্য টেক্সট থাকবে');
+}
+$('txtBtn').onclick = applyTyped;
+$('txtIn').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') applyTyped(); });
+// ---------------- AI assistant (Claude, on the viewer's own account — only on the hosted page)
+let sampleFn = null, aiCtl = null, aiImages = false;
+if (window.claude && window.claude.use) window.claude.use('sample').then(async (fn) => {
+  sampleFn = fn; if (!fn) return aiOff();
+  try { const lim = await fn.limits(); aiImages = !!(lim && lim.images); } catch (e) { aiImages = false; }
+  if (!aiImages) return aiOff();
+  $('aiState').textContent = 'প্রস্তুত'; if (res) aiReady();
+}).catch(aiOff); else aiOff();
+setTimeout(() => { if (!sampleFn) aiOff(); }, 11000);
+function aiOff(){ sampleFn = null; $('aiBtn').disabled = true; $('aiState').textContent = 'এখানে নেই'; $('aiBody').textContent = 'এখানে Claude AI নেই — দরকারও নেই: আঁকা, কোণ/বাঁকা ঠিক করা, অস্পষ্ট লাইন স্পষ্ট করা ও হাতের লেখা পড়া সবই ফ্রিতে, অফলাইনে হচ্ছে। ভুল পড়া লেখায় ক্লিক করে নিজে লিখে দিন।'; }
+function aiAbort(){ if (aiCtl) { aiCtl.abort(); aiCtl = null; } }
+function aiReady(){ if (!sampleFn || !res) return; $('aiBtn').disabled = false; if ($('aiAuto').checked && !res.aiDone) aiAssist(); }
+const AI_ERR = { not_granted: 'অনুমতি দেওয়া হয়নি — AI সহায়তা বন্ধ থাকবে।', rate_limited: 'এখন অনেক অনুরোধ — একটু পরে আবার চেষ্টা করুন।', invalid_json: 'AI-এর উত্তর বোঝা যায়নি — আবার চেষ্টা করুন।', image_rejected: 'ছবিটি AI-কে পাঠানো গেল না।', session_expired: 'claude.ai-তে আবার সাইন ইন করুন।', refused: 'AI এই ছবিতে সাহায্য করতে পারল না।' };
+async function aiAssist(){
+  if (!sampleFn || !res || !src) return;
+  aiAbort(); const ctl = aiCtl = new AbortController();
+  $('aiBtn').disabled = true; $('aiStop').style.display = 'inline-flex'; $('aiState').textContent = 'ছবি দেখছে…';
+  $('aiBody').textContent = 'AI ছবিটি দেখে লেখাগুলো পড়ছে ও ডায়াগ্রাম বুঝছে… (১০–৪০ সেকেন্ড)';
+  try {
+    const img = src.fixed || src.canvas, k = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.9));
+    const sc = (b) => b.map(v => Math.round(v * k));
+    const groups = E.glyphGroups(res);
+    const shapes = res.elements.filter(e => !e.glyph && e.kind !== 'text').slice(0, 150).map(e => ({ id: e.id, type: e.shape, bbox: sc(E.elementBBox(e)) }));
+    const prompt = `You are the "smart cleanup" step of a tool that turns hand-drawn or scanned school diagrams (math, geometry, graphs, physics, chemistry, circuits, ICT, IQ puzzles, charts) into clean Adobe Illustrator vector files. The drawing may be crooked, blurry or faint.
+The attached image is the (already perspective-corrected) photo, ${c.width}x${c.height} pixels.
+A vectorizer already detected these shapes (bbox = [x0,y0,x1,y1] in the attached image's pixels):
+${JSON.stringify(shapes)}
+and these small marks it thinks are handwritten labels / text ("glyph groups"):
+${JSON.stringify(groups.map(gr => ({ group: gr.id, bbox: sc(gr.bbox) })))}
+
+Tasks:
+1. For EACH glyph group, read what is written at that location. Use the diagram's context to resolve unclear handwriting (e.g. vertex names A, B, C of a triangle; axis names x, y; chemical formulas like H2O, CO2, NaCl; physics/maths symbols like θ, π, Ω, Δ, λ, °, →, ⇌; units like cm, V, Ω). If a group is not text (a dot, tick, part of the drawing, or scribble), use "runs": null.
+2. List the ids of shapes that are clearly accidental marks, smudges, dirt or noise rather than part of the intended drawing. Be conservative: when unsure, keep it.
+3. Identify the diagram type.
+
+Reply with ONLY this JSON:
+{"diagram_type":"geometry|graph|circuit|chemistry|chart|physics|biology|ict|iq|other","title_bn":"short title in Bangla","summary_bn":"1-2 short sentences in Bangla describing what the diagram shows","labels":[{"group":"g1","runs":[{"t":"H"},{"t":"2","sub":true},{"t":"O"}],"italic":false}],"remove":["el12"]}
+Split text into runs; mark subscripts with "sub":true and superscripts with "sup":true. Use Unicode characters for symbols. Keep the exact case the writer used.`;
+    const out = await sampleFn.json(prompt, { images: [blob], signal: ctl.signal, modelTier: 'default' });
+    if (ctl !== aiCtl) return;
+    applyAI(out, groups);
+  } catch (e) {
+    if (e && e.code === 'cancelled') { $('aiState').textContent = 'থামানো হয়েছে'; }
+    else { $('aiState').textContent = 'সমস্যা'; $('aiBody').textContent = (e && AI_ERR[e.code]) || 'AI সহায়তা এখন পাওয়া গেল না। নিচের ফলাফল অফলাইন পদ্ধতিতে তৈরি, সেটি ব্যবহার করতে পারবেন।'; if (e && (e.code === 'not_granted' || e.code === 'sampling_disabled')) aiOff(); }
+  } finally { if (ctl === aiCtl) { aiCtl = null; $('aiStop').style.display = 'none'; if (sampleFn) $('aiBtn').disabled = false; } }
+}
+$('aiBtn').onclick = () => { if (res) { res.aiDone = false; aiAssist(); } };
+$('aiStop').onclick = aiAbort;
+function applyAI(out, groups){
+  if (!out || typeof out !== 'object') throw { code: 'invalid_json' };
+  snapshot(); res.aiDone = true;
+  const diag = Math.hypot(res.width, res.height); let nText = 0, nDel = 0, kept = 0;
+  for (const L of Array.isArray(out.labels) ? out.labels : []) {
+    const gr = groups.find(g => g.id === L.group); if (!gr || !Array.isArray(L.runs) || !L.runs.length) continue;
+    const runs = L.runs.filter(r => r && typeof r.t === 'string' && r.t.length).map(r => ({ t: r.t.slice(0, 40), sub: !!r.sub, sup: !!r.sup }));
+    if (!runs.length) continue;
+    if (!runs.every(r => X.pdfEncodable(r.t))) { kept++; continue; } // e.g. Bangla text: keep the traced outlines
+    const members = res.elements.filter(e => gr.members.includes(e.id)); if (!members.length) continue;
+    const t = E.makeTextElement(gr, runs, members[0].color, !!L.italic); t.id = 'tx' + (++textSeq);
+    res.elements = res.elements.filter(e => !gr.members.includes(e.id)); res.elements.push(t); nText++;
+  }
+  for (const id of Array.isArray(out.remove) ? out.remove : []) {
+    const e = elById(String(id)); if (!e) continue; const b = E.elementBBox(e);
+    if (Math.hypot(b[2] - b[0], b[3] - b[1]) > 0.12 * diag) continue; // never let AI delete big parts
+    res.elements = res.elements.filter(x => x !== e); nDel++;
+  }
+  if (!res.fixes.includes('ai')) res.fixes.push('ai');
+  const st = {}; res.elements.forEach(e => { const k = e.kind === 'text' ? 'text' : e.glyph ? 'text/symbol' : e.shape; st[k] = (st[k] || 0) + 1; }); res.stats = st;
+  $('aiState').textContent = 'সম্পন্ন ✓';
+  const esc = (t) => String(t || '').replace(/[<&>]/g, c => ({ '<': '&lt;', '&': '&amp;', '>': '&gt;' }[c]));
+  $('aiBody').innerHTML = `${out.title_bn ? '<b>' + esc(out.title_bn) + '</b> — ' : ''}${esc(out.summary_bn)}<br><span class="aist">${bn(nText)}টি লেখা এডিটযোগ্য টেক্সটে বদলানো হয়েছে${nDel ? ', ' + bn(nDel) + 'টি অপ্রয়োজনীয় দাগ সরানো হয়েছে' : ''}${kept ? ', ' + bn(kept) + 'টি বাংলা/বিশেষ লেখা আঁকা অবস্থায় রাখা হয়েছে' : ''}। পছন্দ না হলে "আগের অবস্থা" চাপুন।</span>`;
+  selected = null; render();
+}
+
+// ---------------- built-in samples (generated on the fly)
+function sample(kind){
+  const c = document.createElement('canvas'); c.width = 900; c.height = 640; const g = c.getContext('2d');
+  g.fillStyle = '#efeadf'; g.fillRect(0, 0, 900, 640); const grd = g.createLinearGradient(0, 0, 900, 640); grd.addColorStop(0, 'rgba(255,255,255,.25)'); grd.addColorStop(1, 'rgba(0,0,0,.12)'); g.fillStyle = grd; g.fillRect(0, 0, 900, 640);
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  const wob = (pts, col, w) => { g.strokeStyle = col || '#1d1d2b'; g.lineWidth = w || 5; g.beginPath(); const ph = rnd() * 6; pts.forEach((p, i) => { const x = p[0] + 2.2 * Math.sin(i * 0.17 + ph) + (rnd() - .5), y = p[1] + 2.2 * Math.cos(i * 0.13 + ph) + (rnd() - .5); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); };
+  const seg = (a, b) => { const n = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 4) + 1; return Array.from({ length: n + 1 }, (_, i) => [a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n]); };
+  const poly = (vs, col) => { let p = []; vs.forEach((v, i) => p = p.concat(seg(v, vs[(i + 1) % vs.length]))); wob(p, col); };
+  const circ = (cx, cy, r, col) => wob(Array.from({ length: Math.ceil(r * 1.6) + 1 }, (_, i) => { const t = i / Math.ceil(r * 1.6) * Math.PI * 2; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; }), col);
+  const arrow = (a, b) => { wob(seg(a, b)); const an = Math.atan2(b[1] - a[1], b[0] - a[0]); [-.45, .45].forEach(s => wob(seg(b, [b[0] - 22 * Math.cos(an + s), b[1] - 22 * Math.sin(an + s)]))); };
+  g.fillStyle = '#1d1d2b'; g.font = '30px sans-serif';
+  if (kind === 'geo') { poly([[110, 540], [430, 540], [270, 200]]); wob(seg([270, 200], [270, 540])); circ(650, 230, 130); wob(seg([650, 230], [780, 230])); poly([[540, 420], [820, 420], [820, 590], [540, 590]]); [['A', 258, 185], ['B', 75, 560], ['C', 440, 560], ['O', 630, 265], ['r', 710, 215]].forEach(([t, x, y]) => g.fillText(t, x, y)); }
+  if (kind === 'graph') { arrow([80, 340], [840, 340]); arrow([130, 610], [130, 50]); wob(Array.from({ length: 230 }, (_, i) => [130 + i * 3, 340 - 140 * Math.sin(i * 3 / 65)]), '#c62828'); wob(Array.from({ length: 160 }, (_, i) => [220 + i * 3, 590 - Math.pow(i * 3 - 240, 2) / 330]), '#1e40af'); g.fillText('x', 825, 375); g.fillText('y', 145, 55); }
+  if (kind === 'circuit') { const zz = [[380, 140]]; for (let i = 0; i < 8; i++) zz.push([400 + 22 * i, i % 2 ? 165 : 115]); zz.push([580, 140]); let p = seg([120, 140], [380, 140]); for (let i = 0; i < zz.length - 1; i++) p = p.concat(seg(zz[i], zz[i + 1])); p = p.concat(seg([580, 140], [780, 140]), seg([780, 140], [780, 540]), seg([780, 540], [470, 540])); wob(p); wob(seg([470, 485], [470, 595])); wob(seg([430, 515], [430, 565]), null, 9); wob(seg([430, 540], [120, 540]).concat(seg([120, 540], [120, 140]))); circ(780, 340, 55); g.fillText('R', 465, 90); g.fillText('E', 435, 630); }
+  const img = new Image(); img.onload = () => setSource(img, 'sample_' + kind); img.src = c.toDataURL('image/png');
+}
+document.querySelectorAll('[data-sample]').forEach(b => b.onclick = () => sample(b.dataset.sample));
+})();
+</script>
+</body>
+</html>

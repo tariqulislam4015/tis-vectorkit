@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#14213d">
+<title>VectorKit — ছবি থেকে Illustrator ভেক্টর</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--acc:#fca311;--acc2:#2a9d8f;--bg:#f4f5f7;--card:#fff;--line:#e3e6ea;--mut:#6b7280;--sel:#e63946}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--ink);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header .logo{width:34px;height:34px;border-radius:9px;background:var(--acc);display:grid;place-items:center}
+header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
+header p{margin:0;font-size:13px;opacity:.75}
+header .sp{flex:1}
+.badge{font-size:12px;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:99px}
+main{max-width:1280px;margin:0 auto;padding:16px;display:grid;grid-template-columns:300px 1fr;gap:16px}
+@media (max-width:860px){main{display:flex;flex-direction:column;padding:10px}aside{display:contents}#cardIn{order:1}.stage{order:2}#cardDl{order:3}#cardAdv{order:4}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h3{margin:0 0 10px;font-size:15px}
+.btn{appearance:none;border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-size:15px}
+.btn.pri{background:var(--acc);color:var(--ink)}
+.btn.sec{background:var(--ink);color:#fff}
+.btn.ghost{background:#eef0f3;color:var(--ink)}
+.btn.small{padding:7px 10px;font-size:13px;width:auto}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.stack{display:grid;gap:8px}
+.drop{border:2px dashed #c9ced6;border-radius:12px;padding:16px;text-align:center;color:var(--mut);font-size:13px}
+.drop.on{border-color:var(--acc);background:#fff8ea}
+label.row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:10px 0 4px;gap:8px}
+input[type=range]{width:100%}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;margin:6px 0}
+details summary{cursor:pointer;font-weight:600;font-size:14px}
+.stage{position:relative;min-height:420px;display:flex;flex-direction:column}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.tab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.view{position:relative;flex:1;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:
+  repeating-conic-gradient(#f6f7f9 0% 25%, #fff 0% 50%) 50%/20px 20px;display:flex;align-items:center;justify-content:center;min-height:380px}
+.view img,.view svg{display:block;width:100%;height:100%;object-fit:contain}
+.view{height:68vh}@media (max-width:860px){.view{height:56vh}}
+.box{position:relative;width:100%;height:100%}
+.layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px}
+.empty{color:var(--mut);text-align:center;padding:30px;font-size:14px;line-height:1.7}
+.empty b{color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:#eef6f5;color:#1d6f65;border-radius:99px;padding:3px 10px;font-size:12.5px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;padding:8px;border:1px solid var(--line);border-radius:10px;background:#fafbfc}
+.bar .lbl{font-size:13px;color:var(--mut)}
+.dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dl .btn{font-size:14px}
+.note{font-size:12px;color:var(--mut);line-height:1.6;margin-top:8px}
+#busy{position:absolute;inset:0;background:rgba(255,255,255,.75);display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;font-weight:600;z-index:5}
+.spin{width:38px;height:38px;border:4px solid #ddd;border-top-color:var(--acc);border-radius:50%;animation:r 0.8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;display:none;z-index:9;max-width:90vw}
+svg .hit{cursor:pointer}
+.fix{background:#fff4e0;color:#8a5300}
+.ai{margin-top:12px;border:1px solid #d9e2ec;border-radius:12px;background:linear-gradient(180deg,#f7fafc,#fff);padding:10px 12px}
+.aihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aiico{font-size:18px}.aist{font-size:12.5px;color:var(--mut)}
+.aibody{font-size:13.5px;color:#334;margin-top:6px;line-height:1.6}
+svg .selected{filter:drop-shadow(0 0 3px var(--sel))}
+.samples{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 20 L12 4 L21 20 Z" fill="none" stroke="#14213d" stroke-width="2.4" stroke-linejoin="round"/><circle cx="12" cy="14" r="3" fill="#14213d"/></svg></div>
+  <div><h1>VectorKit</h1><p>হাতে আঁকা / স্ক্যান করা ছবি → পরিষ্কার Illustrator ভেক্টর</p></div>
+  <div class="sp"></div>
+  <span class="badge">ফ্রি · লগইন লাগে না · সব কাজ আপনার ডিভাইসেই</span>
+</header>
+
+<main>
+  <aside class="stack">
+    <div class="card stack" id="cardIn">
+      <h3>১. ছবি দিন</h3>
+      <button class="btn pri" id="camBtn">📷 ক্যামেরা দিয়ে ছবি তুলুন</button>
+      <button class="btn sec" id="fileBtn">🖼️ গ্যালারি / ফাইল থেকে নিন</button>
+      <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+      <input type="file" id="fileIn" accept="image/*" hidden>
+      <div class="drop" id="drop">এখানে ছবি টেনে আনুন বা <b>Ctrl+V</b> চাপুন</div>
+      <div class="samples"><span class="note" style="margin:0">উদাহরণ দেখুন:</span>
+        <button class="btn ghost small" data-sample="geo">জ্যামিতি</button>
+        <button class="btn ghost small" data-sample="graph">গ্রাফ</button>
+        <button class="btn ghost small" data-sample="circuit">সার্কিট</button>
+      </div>
+    </div>
+
+    <div class="card" id="cardAdv">
+      <details id="adv">
+        <summary>⚙️ উন্নত সেটিংস (ঐচ্ছিক)</summary>
+        <label class="row">কালির সংবেদনশীলতা <span id="vSens">0</span></label>
+        <input type="range" id="sens" min="-40" max="40" value="0">
+        <label class="row">মসৃণতা / সহনশীলতা <span id="vTol">1.0</span></label>
+        <input type="range" id="tol" min="0.5" max="2" step="0.1" value="1">
+        <label class="row">স্ন্যাপ শক্তি (কোণ ও জোড়া) <span id="vSnap">1.0</span></label>
+        <input type="range" id="snap" min="0" max="2" step="0.1" value="1">
+        <label class="row">ছোট দাগ বাদ দিন <span id="vNoise">0</span></label>
+        <input type="range" id="noise" min="0" max="200" step="5" value="0">
+        <div class="chk"><input type="checkbox" id="uniform" checked><label for="uniform">সব রেখার পুরুত্ব সমান করুন</label></div>
+        <div class="chk"><input type="checkbox" id="black" checked><label for="black">কালো কালি = খাঁটি কালো</label></div>
+        <div class="chk"><input type="checkbox" id="mono"><label for="mono">শুধু এক রঙে (সাদা-কালো)</label></div>
+        <div class="chk"><input type="checkbox" id="persp" checked><label for="persp">ছবির কাগজ খুঁজে কোণ/পার্সপেক্টিভ ঠিক করুন</label></div>
+        <div class="chk"><input type="checkbox" id="deskew" checked><label for="deskew">বাঁকা ছবি নিজে থেকে সোজা করুন</label></div>
+        <div class="chk"><input type="checkbox" id="ocrAuto" checked><label for="ocrAuto">হাতের লেখা পড়ে টেক্সট বানান (ফ্রি, অফলাইন)</label></div>
+        <div class="chk"><input type="checkbox" id="aiAuto"><label for="aiAuto">Claude AI সহায়তা স্বয়ংক্রিয়ভাবে চালান (ঐচ্ছিক)</label></div>
+        <button class="btn ghost small" id="rerun" style="margin-top:8px">🔄 আবার প্রসেস করুন</button>
+      </details>
+    </div>
+
+    <div class="card stack" id="cardDl">
+      <h3>৩. ডাউনলোড</h3>
+      <div class="dl">
+        <button class="btn pri" id="dlAI" disabled>⬇ .AI (Illustrator)</button>
+        <button class="btn sec" id="dlSVG" disabled>⬇ .SVG</button>
+        <button class="btn ghost" id="dlPDF" disabled>⬇ .PDF</button>
+        <button class="btn ghost" id="dlPNG" disabled>⬇ .PNG</button>
+      </div>
+      <div class="note" id="dlNote">প্রতিটি রেখা, বৃত্ত, ত্রিভুজ আলাদা আলাদা অবজেক্ট হিসেবে থাকবে — Illustrator-এ খুলে সরাসরি এডিট করা যাবে।</div>
+      <button class="btn ghost small" id="dlApp" style="display:none;width:100%">💾 পুরো অ্যাপটি অফলাইনের জন্য সেভ করুন (.html)</button>
+    </div>
+  </aside>
+
+  <section class="card stage">
+    <div class="tabs">
+      <strong style="font-size:15px;margin-right:6px">২. ফলাফল</strong>
+      <button class="tab on" data-view="vec">ভেক্টর</button>
+      <button class="tab" data-view="orig">মূল ছবি</button>
+      <button class="tab" data-view="over">মিলিয়ে দেখুন</button>
+      <button class="tab" data-view="side">পাশাপাশি</button>
+      <span style="flex:1"></span>
+      <button class="btn ghost small" id="rotBtn" title="৯০° ঘোরান">⟳ ঘোরান</button>
+    </div>
+    <div class="view" id="view">
+      <div class="empty" id="empty">
+        <div style="font-size:42px">✏️ → 📐</div>
+        <b>ছবি দিলেই নিজে থেকে আঁকা শুরু হবে — কোনো প্রম্পট লিখতে হবে না।</b><br>
+        রেখা, বৃত্ত, উপবৃত্ত, ত্রিভুজ, আয়তক্ষেত্র, তীর চিহ্ন, গ্রাফের বক্ররেখা,<br>বার চার্ট, পাই চার্ট, সার্কিট — সব চিনে নিয়ে মাপমতো সোজা ও সুন্দর করে দেবে।
+      </div>
+      <div id="busy"><div class="spin"></div><div id="busyTxt">প্রসেস হচ্ছে…</div></div>
+    </div>
+    <div class="bar" id="editBar" style="display:none">
+      <span class="lbl" id="selInfo">কোনো অংশে ক্লিক করে বাছাই করুন</span>
+      <span style="flex:1"></span>
+      <span id="txtBox" style="display:none;align-items:center;gap:6px"><input id="txtIn" placeholder="যেমন: A, H_2O, x^2" style="font:inherit;font-size:14px;padding:6px 8px;border:1px solid #cfd5dc;border-radius:8px;width:150px"><button class="btn sec small" id="txtBtn">✏️ লেখা বসান</button></span>
+      <input type="color" id="selColor" title="রং" disabled>
+      <input type="range" id="selWidth" min="0.5" max="20" step="0.5" style="width:110px" title="পুরুত্ব" disabled>
+      <button class="btn ghost small" id="delBtn" disabled>🗑 মুছুন</button>
+      <button class="btn ghost small" id="undoBtn" disabled>↶ আগের অবস্থা</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="ai" id="aiBox">
+      <div class="aihead"><span class="aiico">🤖</span><b>Claude AI সহায়তা</b> <span class="aist">(ঐচ্ছিক)</span><span class="aist" id="aiState">—</span><span style="flex:1"></span>
+        <button class="btn sec small" id="aiBtn" disabled>✨ AI দিয়ে লেখা পড়ুন ও ভুল ঠিক করুন</button>
+        <button class="btn ghost small" id="aiStop" style="display:none">থামান</button></div>
+      <div class="aibody" id="aiBody">সব প্রধান কাজ (আঁকা, সোজা করা, লেখা পড়া, .AI ডাউনলোড) Claude ছাড়াই ফ্রিতে হয়। এই বাটনটি ঐচ্ছিক: খুব অস্পষ্ট লেখা থাকলে Claude দিয়ে আরেকবার পড়িয়ে নিতে পারেন (আপনার Claude অ্যাকাউন্টের ব্যবহার থেকে খরচ হবে)।</div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script type="text/plain" id="engsrc">/*ENGINE*/</script>
+<script type="text/plain" id="expsrc">/*EXPORTER*/</script>
+<script type="text/plain" id="ocrsrc">/*OCR*/</script>
+<script>
+(function(){
+'use strict';
+const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+const engSrc = document.getElementById('engsrc').textContent;
+(new Function(engSrc)).call(window);
+(new Function(document.getElementById('expsrc').textContent)).call(window);
+(new Function(document.getElementById('ocrsrc').textContent)).call(window);
+const E = window.VecEngine, X = window.VecExport, OCR = window.VecOCR;
+window.__vk = { get res() { return res; } };
+const $ = (id) => document.getElementById(id);
+const NAMES = {text:'টেক্সট',line:'রেখা',circle:'বৃত্ত',ellipse:'উপবৃত্ত',triangle:'ত্রিভুজ',rect:'আয়তক্ষেত্র',square:'বর্গ',quad:'চতুর্ভুজ',polygon:'বহুভুজ',polyline:'ভাঙা রেখা',arc:'বৃত্তচাপ',curve:'বক্ররেখা',path:'জটিল আকৃতি',compound:'ভরাট আকৃতি','text/symbol':'লেখা/চিহ্ন'};
+const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+let src = null, textSeq = 0;            // {canvas, name}
+let res = null, history = [], selected = null, viewMode = 'vec';
+let worker = null;
+try { worker = new Worker(URL.createObjectURL(new Blob([engSrc + '\nself.onmessage=function(e){try{var d=e.data;var o=self.VecEngine.smartVectorize(d.rgba,d.w,d.h,d.opts);var im=o.image;var buf=im.rgba===d.rgba?null:im.rgba;self.postMessage({ok:true,res:o.res,fixes:o.fixes,image:buf?{rgba:buf,w:im.w,h:im.h}:null},buf?[buf.buffer]:[]);}catch(err){self.postMessage({ok:false,err:String(err&&err.stack||err)});}};'], {type:'application/javascript'}))); } catch (e) { worker = null; }
+
+function toast(msg, ms){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none', ms||3200); }
+function busy(on, txt){ $('busy').style.display = on?'flex':'none'; if(txt) $('busyTxt').textContent = txt; }
+
+// ---------------- input
+$('camBtn').onclick = () => $('camIn').click();
+$('fileBtn').onclick = () => $('fileIn').click();
+$('camIn').onchange = (e) => e.target.files[0] && loadFile(e.target.files[0]);
+$('fileIn').onchange = (e) => e.target.files[0] && loadFile(e.target.files[0]);
+const drop = $('drop');
+['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('on'); }));
+['dragleave','drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('on'); }));
+document.addEventListener('drop', e => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) loadFile(f); });
+document.addEventListener('paste', e => { const it = [...(e.clipboardData||{}).items||[]].find(i => i.type.startsWith('image/')); if (it) loadFile(it.getAsFile()); });
+
+function loadFile(file){
+  if (!file.type.startsWith('image/') && !/\.(png|jpe?g|webp|bmp|gif)$/i.test(file.name)) { toast('এটি ছবির ফাইল নয়। PNG / JPG দিন।'); return; }
+  const url = URL.createObjectURL(file); const img = new Image();
+  img.onload = () => { setSource(img, file.name.replace(/\.[^.]+$/, '') || 'drawing'); URL.revokeObjectURL(url); };
+  img.onerror = () => toast('ছবিটি খোলা গেল না। অন্য ফরম্যাটে (JPG/PNG) চেষ্টা করুন।');
+  img.src = url;
+}
+function setSource(img, name){
+  const MAX = 1600; let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+  const k = Math.min(1, MAX / Math.max(w, h)); // upscale small images for better tracing
+  const up = Math.max(w, h) < 700 ? Math.min(2, 900 / Math.max(w, h)) : 1;
+  const s = k * up; const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, c.width, c.height);
+  src = { canvas: c, name }; history = []; run();
+}
+$('rotBtn').onclick = () => { if (!src) return; const o = src.canvas, c = document.createElement('canvas'); c.width = o.height; c.height = o.width; const g = c.getContext('2d'); g.translate(c.width, 0); g.rotate(Math.PI / 2); g.drawImage(o, 0, 0); src.canvas = c; history = []; run(); };
+
+// ---------------- options
+const opt = () => ({ perspective: $('persp').checked, deskew: $('deskew').checked, sensitivity: +$('sens').value, tolScale: +$('tol').value, snapStrength: Math.max(0.001, +$('snap').value), weld: +$('snap').value > 0, minNoise: +$('noise').value, uniformStroke: $('uniform').checked, pureBlack: $('black').checked, monochrome: $('mono').checked });
+[['sens','vSens'],['tol','vTol'],['snap','vSnap'],['noise','vNoise']].forEach(([a,b]) => { $(a).oninput = () => $(b).textContent = $(a).value; $(a).onchange = () => src && run(); });
+['uniform','black','mono','persp','deskew','ocrAuto'].forEach(id => $(id).onchange = () => src && run());
+$('rerun').onclick = () => src && run();
+
+function run(){
+  if (!src) return; busy(true, 'ছবি বুঝে নিচ্ছি: কোণ, বাঁকা ভাব, অস্পষ্টতা ঠিক করে আঁকছি…');
+  aiAbort();
+  const c = src.canvas, d = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+  const o = opt();
+  const done = (r, fixes, image) => {
+    busy(false); res = r; res.fixes = fixes || []; selected = null; window.__vkDone = (window.__vkDone || 0) + 1;
+    if (image) { const fc = document.createElement('canvas'); fc.width = image.w; fc.height = image.h; fc.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(image.rgba), image.w, image.h), 0, 0); src.fixed = fc; } else src.fixed = null;
+    render(); ['dlAI','dlSVG','dlPDF','dlPNG'].forEach(i => $(i).disabled = false); $('editBar').style.display = 'flex';
+    if ($('ocrAuto').checked) setTimeout(() => { runOCR(); aiReady(); }, 20); else aiReady();
+  };
+  const local = () => setTimeout(() => { try { const r = E.smartVectorize(d.data, c.width, c.height, o); done(r.res, r.fixes, r.image.rgba === d.data ? null : r.image); } catch (e) { busy(false); console.error(e); toast('দুঃখিত, প্রসেস করতে সমস্যা হয়েছে।'); } }, 30);
+  if (worker) {
+    worker.onmessage = (ev) => { if (ev.data.ok) done(ev.data.res, ev.data.fixes, ev.data.image); else { console.error(ev.data.err); local(); } };
+    worker.onerror = () => { worker = null; local(); };
+    worker.postMessage({ rgba: d.data, w: c.width, h: c.height, opts: o });
+  } else local();
+}
+
+// ---------------- render
+function vectorSVG(interactive, transparent){
+  let s = X.toSVG(res, { ids: interactive, background: transparent ? null : '#ffffff' });
+  return s.replace(/^<\?xml[^>]*>\s*/, '');
+}
+function render(){
+  const v = $('view'); [...v.querySelectorAll('.layer,img,svg')].forEach(n => { if (n.closest('#busy') || n.closest('#empty')) return; n.remove(); });
+  $('empty').style.display = src ? 'none' : 'block';
+  if (!src) return;
+  const origURL = src.canvas.toDataURL('image/jpeg', 0.85), fixedURL = (src.fixed || src.canvas).toDataURL('image/jpeg', 0.85);
+  const holder = document.createElement('div'); holder.className = 'layer';
+  if (viewMode === 'orig' || !res) holder.innerHTML = `<div class="box"><img src="${origURL}"></div>`;
+  else if (viewMode === 'side') { holder.style.gap = '6px'; holder.innerHTML = `<div class="box" style="width:50%"><img src="${fixedURL}"></div><div class="box" style="width:50%">${vectorSVG(true)}</div>`; }
+  else if (viewMode === 'over') holder.innerHTML = `<div class="box"><img src="${fixedURL}" style="opacity:.35;position:absolute;inset:0"><div style="position:absolute;inset:0">${vectorSVG(true, true)}</div></div>`;
+  else holder.innerHTML = `<div class="box">${vectorSVG(true)}</div>`;
+  v.appendChild(holder);
+  holder.querySelectorAll('svg').forEach(svg => { svg.removeAttribute('width'); svg.removeAttribute('height'); });
+  // selection
+  holder.querySelectorAll('svg [data-shape]').forEach(n => { n.classList.add('hit'); n.addEventListener('click', (e) => { e.stopPropagation(); select(n.id); }); });
+  holder.querySelectorAll('svg').forEach(s => s.addEventListener('click', (ev) => {
+    // tap inside a label's box (e.g. the empty middle of "C" or "O") selects that label
+    let hit = null; try { const pt = s.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const q = pt.matrixTransform(s.getScreenCTM().inverse()); const pad = 4;
+      for (const e of res.elements) { if (!(e.glyph || e.kind === 'text')) continue; const b = E.elementBBox(e); if (q.x >= b[0] - pad && q.x <= b[2] + pad && q.y >= b[1] - pad && q.y <= b[3] + pad) { hit = e.id; break; } } } catch (err) {}
+    select(hit);
+  }));
+  if (selected) { const n = holder.querySelector('#' + selected); if (n) n.classList.add('selected'); }
+  // stats
+  const st = res ? res.stats : {}; $('stats').innerHTML = res ? Object.entries(st).map(([k, n]) => `<span class="chip">${NAMES[k] || k}: ${bn(n)}</span>`).join('') + `<span class="chip" style="background:#f2f2f2;color:#555">সময়: ${bn((res.ms/1000).toFixed(1))} সে.</span>` + (res.fixes || []).map(fixChip).join('') + (res.ocrCount ? `<span class="chip fix">🔤 ${bn(res.ocrCount)}টি লেখা পড়ে টেক্সট বানানো হয়েছে (ফ্রি)</span>` : '') + (res.ocrSkipped ? `<span class="chip" style="background:#f1f1f1;color:#555">${bn(res.ocrSkipped)}টি অস্পষ্ট লেখা আঁকা অবস্থায় আছে — ক্লিক করে টাইপ করুন</span>` : '') : '';
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => { document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t)); viewMode = t.dataset.view; render(); });
+
+// ---------------- editing
+function fixChip(f){ if (f === 'perspective') return '<span class="chip fix">📐 কাগজের কোণ ও পার্সপেক্টিভ ঠিক করা হয়েছে</span>'; if (f.startsWith('deskew:')) return `<span class="chip fix">↻ ছবি ${bn(Math.abs(+f.split(':')[1]).toFixed(1))}° বাঁকা ছিল — সোজা করা হয়েছে</span>`; if (f === 'faint') return '<span class="chip fix">✨ অস্পষ্ট/ঝাপসা লাইন স্পষ্ট করা হয়েছে</span>'; if (f === 'ai') return '<span class="chip fix">🤖 Claude AI দিয়ে লেখা ও দাগ ঠিক করা হয়েছে</span>'; return ''; }
+const elById = (id) => res && res.elements.find(e => e.id === id);
+function select(id){
+  selected = id; const e = elById(id);
+  $('selInfo').textContent = e ? `বাছাই: ${e.kind === 'text' ? 'টেক্সট "' + e.runs.map(r => r.t).join('') + '"' : NAMES[e.glyph ? 'text/symbol' : e.shape] || e.shape}${e.arrows ? ' (তীর)' : ''}` : 'কোনো অংশে ক্লিক করে বাছাই করুন';
+  ['selColor','delBtn'].forEach(i => $(i).disabled = !e); $('selWidth').disabled = !(e && e.kind === 'stroke');
+  if (e) { $('selColor').value = e.color; if (e.width) $('selWidth').value = e.width; }
+  const isLabel = e && (e.kind === 'text' || e.glyph);
+  $('txtBox').style.display = isLabel ? 'inline-flex' : 'none';
+  if (isLabel) { $('txtIn').value = e.kind === 'text' ? OCR.runsToString(e.runs) : ''; if (e.glyph) $('selInfo').textContent = 'লেখা/চিহ্ন — সঠিক লেখাটি টাইপ করুন:'; }
+  render();
+}
+function snapshot(){ history.push(JSON.stringify(res.elements)); if (history.length > 40) history.shift(); $('undoBtn').disabled = false; }
+$('delBtn').onclick = () => { const e = elById(selected); if (!e) return; snapshot(); res.elements = res.elements.filter(x => x !== e); selected = null; select(null); };
+$('selColor').onchange = () => { const e = elById(selected); if (!e) return; snapshot(); e.color = $('selColor').value; render(); };
+$('selWidth').onchange = () => { const e = elById(selected); if (!e) return; snapshot(); e.width = +$('selWidth').value; render(); };
+$('undoBtn').onclick = () => { if (!history.length) return; res.elements = JSON.parse(history.pop()); $('undoBtn').disabled = !history.length; selected = null; select(null); };
+document.addEventListener('keydown', (e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && selected && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $('delBtn').click(); } if ((e.ctrlKey || e.metaKey) && e.key === 'z') $('undoBtn').click(); });
+
+// ---------------- downloads
+let dlCap = null; // platform save capability (hosted page)
+const inSandbox = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { dlCap = d; if (d) { $('dlApp').style.display = 'flex'; $('dlNote').innerHTML += '<br>এই পেজে .AI ফাইলটি একটি .zip-এর ভেতরে আসবে (zip খুললেই .ai পাবেন)। অফলাইন অ্যাপ বা মোবাইল APK-তে সরাসরি .ai ডাউনলোড হয়।'; } }).catch(() => {});
+
+function crc32(buf){ let c, crc = 0xFFFFFFFF; const T = crc32.T || (crc32.T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })()); for (let i = 0; i < buf.length; i++) crc = T[(crc ^ buf[i]) & 255] ^ (crc >>> 8); return (crc ^ 0xFFFFFFFF) >>> 0; }
+function zip(files){ // files: [{name, data:Uint8Array}] stored (no compression)
+  const enc = new TextEncoder(), parts = [], central = []; let off = 0;
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const h = new DataView(new ArrayBuffer(30)); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint32(14, crc, true); h.setUint32(18, sz, true); h.setUint32(22, sz, true); h.setUint16(26, nm.length, true);
+    parts.push(new Uint8Array(h.buffer), nm, f.data);
+    const c = new DataView(new ArrayBuffer(46)); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint32(16, crc, true); c.setUint32(20, sz, true); c.setUint32(24, sz, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), nm); off += 30 + nm.length + sz;
+  }
+  const csize = central.reduce((s, p) => s + p.length, 0);
+  const e = new DataView(new ArrayBuffer(22)); e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...central, new Uint8Array(e.buffer)], { type: 'application/zip' });
+}
+async function blobToBase64(b){ const buf = new Uint8Array(await b.arrayBuffer()); let s = ''; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000)); return btoa(s); }
+async function save(filename, blob){
+  // 1) Android app bridge
+  if (window.AndroidBridge && window.AndroidBridge.saveFile) { try { const ok = window.AndroidBridge.saveFile(filename, await blobToBase64(blob), blob.type || 'application/octet-stream'); toast(ok ? 'ডাউনলোড ফোল্ডারে সেভ হয়েছে: ' + filename : 'সেভ করা যায়নি'); } catch (e) { toast('সেভ করা যায়নি'); } return; }
+  // 2) hosted page capability
+  if (dlCap) {
+    let name = filename, data = blob;
+    if (/\.ai$/i.test(filename)) { name = filename.replace(/\.ai$/i, '') + '_illustrator.zip'; data = zip([{ name: filename, data: new Uint8Array(await blob.arrayBuffer()) }]); }
+    try { await dlCap.save({ filename: name, data }); toast('সেভ হয়েছে: ' + name); } catch (e) { if (e && e.code === 'declined') return; toast('এখানে ডাউনলোড করা গেল না (' + (e && e.code || 'error') + ')'); }
+    return;
+  }
+  // 3) normal browser
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  if (inSandbox) toast('ডাউনলোড শুরু না হলে অ্যাপটি অফলাইন কপি হিসেবে খুলে নিন।');
+}
+const base = () => (src && src.name || 'drawing').replace(/[^\wঀ-৿-]+/g, '_');
+$('dlAI').onclick = () => save(base() + '.ai', new Blob([X.toPDF(res, { title: base() })], { type: 'application/pdf' }));
+$('dlPDF').onclick = () => save(base() + '.pdf', new Blob([X.toPDF(res, { title: base() })], { type: 'application/pdf' }));
+$('dlSVG').onclick = () => save(base() + '.svg', new Blob([X.toSVG(res, {})], { type: 'image/svg+xml' }));
+$('dlPNG').onclick = () => { const svg = X.toSVG(res, { background: '#ffffff' }); const img = new Image(); const k = Math.max(1, 2400 / Math.max(res.width, res.height)); img.onload = () => { const c = document.createElement('canvas'); c.width = res.width * k; c.height = res.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); c.toBlob(b => save(base() + '.png', b), 'image/png'); }; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); };
+$('dlApp').onclick = () => save('VectorKit.html', new Blob([ORIGINAL_HTML], { type: 'text/html' }));
+
+
+
+// ---------------- free offline label reading + manual text editing
+function runOCR(){
+  if (!res || !OCR) return;
+  let found = [];
+  try { found = OCR.readLabels(res); } catch (e) { console.error(e); return; }
+  const good = found.filter(f => f.confidence >= 0.9 && f.runs.length && f.runs.every(r => X.pdfEncodable(r.t)));
+  if (!good.length) return;
+  snapshot();
+  for (const f of good) {
+    const members = res.elements.filter(e => f.group.members.includes(e.id)); if (!members.length) continue;
+    const t = E.makeTextElement(f.group, f.runs, members[0].color, false); t.id = 'tx' + (++textSeq); t.ocr = true;
+    res.elements = res.elements.filter(e => !f.group.members.includes(e.id)); res.elements.push(t);
+  }
+  standardizeTextSizes();
+  res.ocrCount = good.length; res.ocrSkipped = found.length - good.length;
+  recount(); render();
+}
+function standardizeTextSizes(){ // one consistent label size, like a textbook figure
+  const T = res.elements.filter(e => e.kind === 'text'); if (T.length < 2) return;
+  const caps = T.map(e => e.size * (/[A-Z0-9]/.test(e.runs.map(r => r.t).join('')) ? 1 : 0.8)).sort((a, b) => a - b);
+  const m = caps[caps.length >> 1];
+  for (const e of T) { if (e.size < 0.55 * m || e.size > 1.8 * m) continue; const bottom = e.y; e.size = Math.round(m * 2) / 2; e.y = bottom; }
+}
+function recount(){ const st = {}; res.elements.forEach(e => { const k = e.kind === 'text' ? 'text' : e.glyph ? 'text/symbol' : e.shape; st[k] = (st[k] || 0) + 1; }); res.stats = st; }
+function groupOf(id){ return E.glyphGroups(res).find(g => g.members.includes(id)); }
+function applyTyped(){
+  const e = elById(selected); const v = $('txtIn').value.trim(); if (!e || !v) return;
+  const runs = OCR.parseRuns(v); if (!runs.length) return;
+  snapshot();
+  if (e.kind === 'text') { const b = E.elementBBox(e); const t = E.makeTextElement({ bbox: [e.x, e.y - e.size * 0.72, b[2], e.y] }, runs, e.color, e.italic); t.size = e.size; t.x = e.x; t.y = e.y; t.id = e.id; res.elements[res.elements.indexOf(e)] = t; }
+  else { const gr = groupOf(e.id) || { bbox: E.elementBBox(e), members: [e.id] }; const t = E.makeTextElement(gr, runs, e.color, false); t.id = 'tx' + (++textSeq); res.elements = res.elements.filter(x => !gr.members.includes(x.id)); res.elements.push(t); selected = t.id; }
+  recount(); select(selected); toast('লেখা বসানো হয়েছে — Illustrator-এ এটি এডিটযোগ্য টেক্সট থাকবে');
+}
+$('txtBtn').onclick = applyTyped;
+$('txtIn').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') applyTyped(); });
+// ---------------- AI assistant (Claude, on the viewer's own account — only on the hosted page)
+let sampleFn = null, aiCtl = null, aiImages = false;
+if (window.claude && window.claude.use) window.claude.use('sample').then(async (fn) => {
+  sampleFn = fn; if (!fn) return aiOff();
+  try { const lim = await fn.limits(); aiImages = !!(lim && lim.images); } catch (e) { aiImages = false; }
+  if (!aiImages) return aiOff();
+  $('aiState').textContent = 'প্রস্তুত'; if (res) aiReady();
+}).catch(aiOff); else aiOff();
+setTimeout(() => { if (!sampleFn) aiOff(); }, 11000);
+function aiOff(){ sampleFn = null; $('aiBtn').disabled = true; $('aiState').textContent = 'এখানে নেই'; $('aiBody').textContent = 'এখানে Claude AI নেই — দরকারও নেই: আঁকা, কোণ/বাঁকা ঠিক করা, অস্পষ্ট লাইন স্পষ্ট করা ও হাতের লেখা পড়া সবই ফ্রিতে, অফলাইনে হচ্ছে। ভুল পড়া লেখায় ক্লিক করে নিজে লিখে দিন।'; }
+function aiAbort(){ if (aiCtl) { aiCtl.abort(); aiCtl = null; } }
+function aiReady(){ if (!sampleFn || !res) return; $('aiBtn').disabled = false; if ($('aiAuto').checked && !res.aiDone) aiAssist(); }
+const AI_ERR = { not_granted: 'অনুমতি দেওয়া হয়নি — AI সহায়তা বন্ধ থাকবে।', rate_limited: 'এখন অনেক অনুরোধ — একটু পরে আবার চেষ্টা করুন।', invalid_json: 'AI-এর উত্তর বোঝা যায়নি — আবার চেষ্টা করুন।', image_rejected: 'ছবিটি AI-কে পাঠানো গেল না।', session_expired: 'claude.ai-তে আবার সাইন ইন করুন।', refused: 'AI এই ছবিতে সাহায্য করতে পারল না।' };
+async function aiAssist(){
+  if (!sampleFn || !res || !src) return;
+  aiAbort(); const ctl = aiCtl = new AbortController();
+  $('aiBtn').disabled = true; $('aiStop').style.display = 'inline-flex'; $('aiState').textContent = 'ছবি দেখছে…';
+  $('aiBody').textContent = 'AI ছবিটি দেখে লেখাগুলো পড়ছে ও ডায়াগ্রাম বুঝছে… (১০–৪০ সেকেন্ড)';
+  try {
+    const img = src.fixed || src.canvas, k = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.9));
+    const sc = (b) => b.map(v => Math.round(v * k));
+    const groups = E.glyphGroups(res);
+    const shapes = res.elements.filter(e => !e.glyph && e.kind !== 'text').slice(0, 150).map(e => ({ id: e.id, type: e.shape, bbox: sc(E.elementBBox(e)) }));
+    const prompt = `You are the "smart cleanup" step of a tool that turns hand-drawn or scanned school diagrams (math, geometry, graphs, physics, chemistry, circuits, ICT, IQ puzzles, charts) into clean Adobe Illustrator vector files. The drawing may be crooked, blurry or faint.
+The attached image is the (already perspective-corrected) photo, ${c.width}x${c.height} pixels.
+A vectorizer already detected these shapes (bbox = [x0,y0,x1,y1] in the attached image's pixels):
+${JSON.stringify(shapes)}
+and these small marks it thinks are handwritten labels / text ("glyph groups"):
+${JSON.stringify(groups.map(gr => ({ group: gr.id, bbox: sc(gr.bbox) })))}
+
+Tasks:
+1. For EACH glyph group, read what is written at that location. Use the diagram's context to resolve unclear handwriting (e.g. vertex names A, B, C of a triangle; axis names x, y; chemical formulas like H2O, CO2, NaCl; physics/maths symbols like θ, π, Ω, Δ, λ, °, →, ⇌; units like cm, V, Ω). If a group is not text (a dot, tick, part of the drawing, or scribble), use "runs": null.
+2. List the ids of shapes that are clearly accidental marks, smudges, dirt or noise rather than part of the intended drawing. Be conservative: when unsure, keep it.
+3. Identify the diagram type.
+
+Reply with ONLY this JSON:
+{"diagram_type":"geometry|graph|circuit|chemistry|chart|physics|biology|ict|iq|other","title_bn":"short title in Bangla","summary_bn":"1-2 short sentences in Bangla describing what the diagram shows","labels":[{"group":"g1","runs":[{"t":"H"},{"t":"2","sub":true},{"t":"O"}],"italic":false}],"remove":["el12"]}
+Split text into runs; mark subscripts with "sub":true and superscripts with "sup":true. Use Unicode characters for symbols. Keep the exact case the writer used.`;
+    const out = await sampleFn.json(prompt, { images: [blob], signal: ctl.signal, modelTier: 'default' });
+    if (ctl !== aiCtl) return;
+    applyAI(out, groups);
+  } catch (e) {
+    if (e && e.code === 'cancelled') { $('aiState').textContent = 'থামানো হয়েছে'; }
+    else { $('aiState').textContent = 'সমস্যা'; $('aiBody').textContent = (e && AI_ERR[e.code]) || 'AI সহায়তা এখন পাওয়া গেল না। নিচের ফলাফল অফলাইন পদ্ধতিতে তৈরি, সেটি ব্যবহার করতে পারবেন।'; if (e && (e.code === 'not_granted' || e.code === 'sampling_disabled')) aiOff(); }
+  } finally { if (ctl === aiCtl) { aiCtl = null; $('aiStop').style.display = 'none'; if (sampleFn) $('aiBtn').disabled = false; } }
+}
+$('aiBtn').onclick = () => { if (res) { res.aiDone = false; aiAssist(); } };
+$('aiStop').onclick = aiAbort;
+function applyAI(out, groups){
+  if (!out || typeof out !== 'object') throw { code: 'invalid_json' };
+  snapshot(); res.aiDone = true;
+  const diag = Math.hypot(res.width, res.height); let nText = 0, nDel = 0, kept = 0;
+  for (const L of Array.isArray(out.labels) ? out.labels : []) {
+    const gr = groups.find(g => g.id === L.group); if (!gr || !Array.isArray(L.runs) || !L.runs.length) continue;
+    const runs = L.runs.filter(r => r && typeof r.t === 'string' && r.t.length).map(r => ({ t: r.t.slice(0, 40), sub: !!r.sub, sup: !!r.sup }));
+    if (!runs.length) continue;
+    if (!runs.every(r => X.pdfEncodable(r.t))) { kept++; continue; } // e.g. Bangla text: keep the traced outlines
+    const members = res.elements.filter(e => gr.members.includes(e.id)); if (!members.length) continue;
+    const t = E.makeTextElement(gr, runs, members[0].color, !!L.italic); t.id = 'tx' + (++textSeq);
+    res.elements = res.elements.filter(e => !gr.members.includes(e.id)); res.elements.push(t); nText++;
+  }
+  for (const id of Array.isArray(out.remove) ? out.remove : []) {
+    const e = elById(String(id)); if (!e) continue; const b = E.elementBBox(e);
+    if (Math.hypot(b[2] - b[0], b[3] - b[1]) > 0.12 * diag) continue; // never let AI delete big parts
+    res.elements = res.elements.filter(x => x !== e); nDel++;
+  }
+  if (!res.fixes.includes('ai')) res.fixes.push('ai');
+  const st = {}; res.elements.forEach(e => { const k = e.kind === 'text' ? 'text' : e.glyph ? 'text/symbol' : e.shape; st[k] = (st[k] || 0) + 1; }); res.stats = st;
+  $('aiState').textContent = 'সম্পন্ন ✓';
+  const esc = (t) => String(t || '').replace(/[<&>]/g, c => ({ '<': '&lt;', '&': '&amp;', '>': '&gt;' }[c]));
+  $('aiBody').innerHTML = `${out.title_bn ? '<b>' + esc(out.title_bn) + '</b> — ' : ''}${esc(out.summary_bn)}<br><span class="aist">${bn(nText)}টি লেখা এডিটযোগ্য টেক্সটে বদলানো হয়েছে${nDel ? ', ' + bn(nDel) + 'টি অপ্রয়োজনীয় দাগ সরানো হয়েছে' : ''}${kept ? ', ' + bn(kept) + 'টি বাংলা/বিশেষ লেখা আঁকা অবস্থায় রাখা হয়েছে' : ''}। পছন্দ না হলে "আগের অবস্থা" চাপুন।</span>`;
+  selected = null; render();
+}
+
+// ---------------- built-in samples (generated on the fly)
+function sample(kind){
+  const c = document.createElement('canvas'); c.width = 900; c.height = 640; const g = c.getContext('2d');
+  g.fillStyle = '#efeadf'; g.fillRect(0, 0, 900, 640); const grd = g.createLinearGradient(0, 0, 900, 640); grd.addColorStop(0, 'rgba(255,255,255,.25)'); grd.addColorStop(1, 'rgba(0,0,0,.12)'); g.fillStyle = grd; g.fillRect(0, 0, 900, 640);
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  const wob = (pts, col, w) => { g.strokeStyle = col || '#1d1d2b'; g.lineWidth = w || 5; g.beginPath(); const ph = rnd() * 6; pts.forEach((p, i) => { const x = p[0] + 2.2 * Math.sin(i * 0.17 + ph) + (rnd() - .5), y = p[1] + 2.2 * Math.cos(i * 0.13 + ph) + (rnd() - .5); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); };
+  const seg = (a, b) => { const n = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 4) + 1; return Array.from({ length: n + 1 }, (_, i) => [a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n]); };
+  const poly = (vs, col) => { let p = []; vs.forEach((v, i) => p = p.concat(seg(v, vs[(i + 1) % vs.length]))); wob(p, col); };
+  const circ = (cx, cy, r, col) => wob(Array.from({ length: Math.ceil(r * 1.6) + 1 }, (_, i) => { const t = i / Math.ceil(r * 1.6) * Math.PI * 2; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; }), col);
+  const arrow = (a, b) => { wob(seg(a, b)); const an = Math.atan2(b[1] - a[1], b[0] - a[0]); [-.45, .45].forEach(s => wob(seg(b, [b[0] - 22 * Math.cos(an + s), b[1] - 22 * Math.sin(an + s)]))); };
+  g.fillStyle = '#1d1d2b'; g.font = '30px sans-serif';
+  if (kind === 'geo') { poly([[110, 540], [430, 540], [270, 200]]); wob(seg([270, 200], [270, 540])); circ(650, 230, 130); wob(seg([650, 230], [780, 230])); poly([[540, 420], [820, 420], [820, 590], [540, 590]]); [['A', 258, 185], ['B', 75, 560], ['C', 440, 560], ['O', 630, 265], ['r', 710, 215]].forEach(([t, x, y]) => g.fillText(t, x, y)); }
+  if (kind === 'graph') { arrow([80, 340], [840, 340]); arrow([130, 610], [130, 50]); wob(Array.from({ length: 230 }, (_, i) => [130 + i * 3, 340 - 140 * Math.sin(i * 3 / 65)]), '#c62828'); wob(Array.from({ length: 160 }, (_, i) => [220 + i * 3, 590 - Math.pow(i * 3 - 240, 2) / 330]), '#1e40af'); g.fillText('x', 825, 375); g.fillText('y', 145, 55); }
+  if (kind === 'circuit') { const zz = [[380, 140]]; for (let i = 0; i < 8; i++) zz.push([400 + 22 * i, i % 2 ? 165 : 115]); zz.push([580, 140]); let p = seg([120, 140], [380, 140]); for (let i = 0; i < zz.length - 1; i++) p = p.concat(seg(zz[i], zz[i + 1])); p = p.concat(seg([580, 140], [780, 140]), seg([780, 140], [780, 540]), seg([780, 540], [470, 540])); wob(p); wob(seg([470, 485], [470, 595])); wob(seg([430, 515], [430, 565]), null, 9); wob(seg([430, 540], [120, 540]).concat(seg([120, 540], [120, 140]))); circ(780, 340, 55); g.fillText('R', 465, 90); g.fillText('E', 435, 630); }
+  const img = new Image(); img.onload = () => setSource(img, 'sample_' + kind); img.src = c.toDataURL('image/png');
+}
+document.querySelectorAll('[data-sample]').forEach(b => b.onclick = () => sample(b.dataset.sample));
+})();
+</script>
+</body>
+</html>

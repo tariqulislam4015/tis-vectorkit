@@ -1,0 +1,38 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'index.html', 'android/**', '.github/workflows/build-apk.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          mkdir -p ../out && cp app/build/outputs/apk/release/*.apk ../out/TIS-VectorKit.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TIS-VectorKit-apk
+          path: out/TIS-VectorKit.apk
+      - name: Publish release (free download, no login needed)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: TIS VectorKit v1.0.${{ github.run_number }}
+          body: Android APK — ডাউনলোড করে ফোনে ইনস্টল করুন। ছবি তুলুন → নিজে থেকে Illustrator ভেক্টর (.ai) তৈরি হবে।
+          files: out/TIS-VectorKit.apk
